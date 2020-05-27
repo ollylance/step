@@ -1,5 +1,6 @@
 #content {
   width: 100%;
+  text-align: center;
 }
 
 #header{
@@ -46,9 +47,32 @@
     overflow: hidden;
     width: 10%;
     margin: 0% 1% 0% 1%;
-    
 }
 
 #greeting-container {
   margin-top: 20px;
+}
+
+#image-gallery{
+    margin: 0 auto;
+    display: flex;
+    width: 60%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+div.col{
+    width: 31%;
+    padding: 0 1%;
+}
+
+#image-gallery img{
+    width: 100%;
+    margin: 10px 0;
+}
+
+h2{
+    font-family: 'Cormorant', serif;
+    font-weight: 600;
+    font-size: max(1em, 1.8vw);
 }
