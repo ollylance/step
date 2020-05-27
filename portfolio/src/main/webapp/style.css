@@ -76,3 +76,18 @@ h2{
     font-weight: 600;
     font-size: max(1em, 1.8vw);
 }
+
+#footer{
+    font-family: 'Cormorant', serif;
+    font-weight: 400;
+    font-size: max(.7em, .6vw);
+}
+
+#footer a{
+    text-decoration: none;
+    color: black;
+}
+
+#footer a:hover{
+    color: #8EA4D2;
+}
