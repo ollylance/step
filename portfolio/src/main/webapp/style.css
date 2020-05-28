@@ -8,6 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 20px;
 }
 
 #navbar{
@@ -49,8 +50,64 @@
     margin: 0% 1% 0% 1%;
 }
 
+#portfolio-title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#portfolio-title a{
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: max(1em, 1vw);
+    color: #b00;
+    text-decoration: none;
+}
+
+#portfolio-title a:hover{
+    color: #474350;
+}
+
+#portfolio-content{
+    width: 60%;
+    display: inline-block;
+}
+
+table{
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+}
+
+th, td{
+    border: 2px solid #8EA4D2;
+    padding: 10px;
+}
+
 #greeting-container {
-  margin-top: 20px;
+    margin-top: 20px;
+}
+
+#portfolio-content p{
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.8em, .9vw);
+    line-height: 1.4em;
+    letter-spacing: 1px;
+}
+
+#cmu-logo{
+    width: 30%;
+    float: left;
+    margin-right: 2%;
+}
+
+iframe{
+    width: 50%;
+    height: 300px;
+    float: right;
+    margin-left: 2%;
 }
 
 #image-gallery{
@@ -66,15 +123,10 @@ div.col{
     padding: 0 1%;
 }
 
-#image-gallery img{
-    width: 100%;
-    margin: 10px 0;
-}
-
 h2{
     font-family: 'Cormorant', serif;
     font-weight: 600;
-    font-size: max(1em, 1.8vw);
+    font-size: max(1.5em, 1.8vw);
 }
 
 #footer{
