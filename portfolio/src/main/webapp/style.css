@@ -123,6 +123,32 @@ div.col{
     padding: 0 1%;
 }
 
+#image-gallery img{
+    width: 100%;
+    margin: 10px 0;
+}
+
+#image-gallery img:hover{
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+#background-overlay{
+    width: 0;
+    height: 0;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#enlarged-img{
+    width: 0;
+    height: 0;
+    display:block;
+    margin:auto;
+}
+
 h2{
     font-family: 'Cormorant', serif;
     font-weight: 600;
