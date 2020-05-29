@@ -3,7 +3,7 @@
   text-align: center;
 }
 
-#header{
+header{
     width: 100%;
     display: flex;
     justify-content: center;
@@ -11,33 +11,33 @@
     margin-top: 20px;
 }
 
-#navbar{
+nav{
     margin-top: 20px;
     margin-bottom: 20px;
     font-family: 'Cormorant', serif;
     font-weight: 400;
-    font-size: 1.5em;
+    font-size: max(1.3em, 1.3vw);
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#navbar a{
+nav a{
     text-decoration: none;
     margin: 0 10px 0 10px;
     color: black;
 }
 
-#navbar a.selected{
+nav a.selected{
     color: #8EA4D2;
 }
 
-#navbar a:hover{
+nav a:hover{
     color: #8EA4D2;
 }
 
-.name{
+header h1{
     font-family: 'Cormorant', serif;
     font-weight: 700;
     font-size: max(2em, 3vw);
@@ -177,17 +177,17 @@ h2{
     font-size: max(1.5em, 1.8vw);
 }
 
-#footer{
+footer{
     font-family: 'Cormorant', serif;
     font-weight: 400;
     font-size: max(.7em, .6vw);
 }
 
-#footer a{
+footer a{
     text-decoration: none;
     color: black;
 }
 
-#footer a:hover{
+footer a:hover{
     color: #8EA4D2;
 }
