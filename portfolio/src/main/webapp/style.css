@@ -140,13 +140,35 @@ div.col{
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: -1;
+}
+
+#background-clicked{
+    background-color: rgba(71, 71, 71, .8);
+    width: 100%;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    z-index: 2;
 }
 
 #enlarged-img{
     width: 0;
     height: 0;
-    display:block;
-    margin:auto;
+    display: block;
+    margin: auto;
+    z-index: -1;
+}
+
+#enlarged-clicked{
+    width: auto;
+    height: auto;
+    max-width: 60%;
+    display: block;
+    margin: auto;
+    z-index: 3;
 }
 
 h2{
