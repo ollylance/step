@@ -77,6 +77,9 @@ table{
     border-collapse: collapse;
     width: 100%;
     text-align: left;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.7em, .7vw);
 }
 
 th, td{
@@ -109,6 +112,22 @@ iframe{
     float: right;
     margin-left: 2%;
 }
+
+#quote-container{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: max(.8em, .9vw);
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+button{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.5em, .5vw);
+    padding: 5px;
+}
+
 
 #image-gallery{
     margin: 0 auto;

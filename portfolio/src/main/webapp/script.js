@@ -62,11 +62,17 @@ function openImg(elem){
 }
 
 
-function addRandomQuotes() {
+function addRandomQuote() {
   const quotes =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+      ['“Be the change that you wish to see in the world." - Mahatma Gandhi',
+      '“The best way to predict the future is to invent it.” – Alan Kay', 
+      '“How wonderful it is that nobody need wait a single moment before starting to improve the world.” – Anne Frank', 
+      '“Imagination is everything. It is the preview of life’s coming attractions.” – Albert Einstein',
+      '“Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.” – Martin Luther King, Jr.',
+      '“Don’t walk in front of me, I may not follow. Don’t walk behind me, I may not lead. Walk beside me and be my friend.” – Albert Camus',
+      '“The only true wisdom is knowing that you know nothing.” – Socrates'];
 
-  const quote = quotes[Math.floor(Math.random() * greetings.length)];
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
   const quoteContainer = document.getElementById('quote-container');
   quoteContainer.innerText = quote;
