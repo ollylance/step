@@ -22,6 +22,8 @@ function resizeOverlay(){
     background.style.top = window.pageYOffset + "px";
 }
 
+//sets attributes for image and background overlay to display
+//when image is clicked; then monitors for next event
 function openImg(elem){
     imgURL = elem.src;
     const background = document.getElementById("background-overlay");
@@ -38,11 +40,15 @@ function openImg(elem){
     img.style.maxHeight = (window.innerHeight * .75) + "px";
     img.style.top = window.pageYOffset + "px";
     
+    // locks the screen so user can not scroll when image is open
     var body = document.getElementsByTagName("body");
     body[0].style.overflow = "hidden";
 
+    //when window is resized, resizes the background overlay and image
     window.addEventListener('resize', resizeOverlay);
 
+    //detects when the background is clicked next to close 
+    //the image and background overlay
     background.addEventListener('click', function(){
         background.removeAttribute("id");
         img.removeAttribute("id");
