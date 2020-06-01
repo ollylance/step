@@ -77,3 +77,9 @@ function addRandomQuote() {
   const quoteContainer = document.getElementById('quote-container');
   quoteContainer.innerText = quote;
 }
+
+async function getFixedQuote(){
+    const resp = await fetch('/data');
+    const quote = await resp.text();
+    document.getElementById('comment-content').innerText = quote;
+}
