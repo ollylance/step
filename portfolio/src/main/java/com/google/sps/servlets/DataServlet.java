@@ -26,26 +26,35 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
-  private ArrayList<String> quotes;
-
+  private ArrayList<String> comments = new ArrayList<String>();
+  
   @Override
-  public void init() {
-    quotes = new ArrayList<>();
-    quotes.add("This is still so cool! - Oliver Lance");
-    quotes.add("I hope this works correctly - Oliver Lance");
-    quotes.add("This STEP internship is fun - Oliver Lance");
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+    String comment = request.getParameter("comment-input");
+    if(comment == null){
+        comments.add("");
+    }
+    else{
+        comments.add(comment);
+    }
+
+    // String json = convertToJsonUsingGson(comments);
+    // response.setContentType("text/html;");
+    // response.getWriter().println(json);
+    response.sendRedirect("/comments.html");
   }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String json = convertToJsonUsingGson(quotes);
+    String json = convertToJsonUsingGson(comments);
     response.setContentType("text/html;");
     response.getWriter().println(json);
   }
 
-  private String convertToJsonUsingGson(ArrayList<String> quotes) {
+  private String convertToJsonUsingGson(ArrayList<String> comments) {
     Gson gson = new Gson();
-    String json = gson.toJson(quotes);
+    String json = gson.toJson(comments);
     return json;
   }
 }
