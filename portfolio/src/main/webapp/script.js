@@ -12,17 +12,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
-  const greetings =
+
+function resizeOverlay(){
+    const background = document.getElementById("background-clicked");
+    const img = document.getElementById("enlarged-clicked");
+    img.style.maxHeight = (window.innerHeight * .75) + "px";
+    img.style.top = window.pageYOffset + "px";
+    background.style.height = window.innerHeight + "px";
+    background.style.top = window.pageYOffset + "px";
+}
+
+//sets attributes for image and background overlay to display
+//when image is clicked; then monitors for next event
+function openImg(elem){
+    imgURL = elem.src;
+    const background = document.getElementById("background-overlay");
+    background.removeAttribute("id");
+    background.setAttribute("id", "background-clicked");
+    background.style.height = window.innerHeight + "px";
+    background.style.top = window.pageYOffset + "px";
+
+    const img = document.getElementById("enlarged-img"); 
+    img.src = imgURL;
+    img.alt = "enlarged gallery image";
+    img.removeAttribute("id");
+    img.setAttribute("id", "enlarged-clicked");
+    img.style.maxHeight = (window.innerHeight * .75) + "px";
+    img.style.top = window.pageYOffset + "px";
+    
+    // locks the screen so user can not scroll when image is open
+    var body = document.getElementsByTagName("body");
+    body[0].style.overflow = "hidden";
+
+    //when window is resized, resizes the background overlay and image
+    window.addEventListener('resize', resizeOverlay);
+
+    //detects when the background is clicked next to close 
+    //the image and background overlay
+    background.addEventListener('click', function(){
+        background.removeAttribute("id");
+        img.removeAttribute("id");
+        background.setAttribute("id", "background-overlay");
+        img.setAttribute("id", "enlarged-img");
+    
+        var body = document.getElementsByTagName("body");
+        body[0].style.overflow = "visible";
+        window.removeEventListener('resize', resizeOverlay);
+    });
+}
+
+
+function addRandomQuotes() {
+  const quotes =
       ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
 
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+  const quote = quotes[Math.floor(Math.random() * greetings.length)];
 
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+  const quoteContainer = document.getElementById('quote-container');
+  quoteContainer.innerText = quote;
 }
