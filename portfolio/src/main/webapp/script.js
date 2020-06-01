@@ -78,8 +78,13 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
-async function getFixedQuote(){
+async function getQuotes(){
     const resp = await fetch('/data');
-    const quote = await resp.text();
-    document.getElementById('comment-content').innerText = quote;
+    var quotes = await resp.json();
+    const ulElem = document.getElementById('comment-content');
+    for(i = 0; i < quotes.length; i++){
+        const newLiElem = document.createElement('li');
+        newLiElem.innerText = quotes[i];
+        ulElem.appendChild(newLiElem);
+    }
 }
