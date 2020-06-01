@@ -73,7 +73,15 @@ function addRandomQuote() {
       '“The only true wisdom is knowing that you know nothing.” – Socrates'];
 
   const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
   const quoteContainer = document.getElementById('quote-container');
   quoteContainer.innerText = quote;
+}
+
+async function getComments(){
+    const resp = await fetch('/data');
+    var comments = await resp.json();
+    const responses = document.getElementById('comment-content');
+    for(i = 0; i < comments.length; i++){
+        responses.innerHTML += comments[i] + "<br>"
+    }
 }
