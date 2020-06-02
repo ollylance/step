@@ -22,7 +22,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import com.google.sps.data.Comment;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -35,10 +35,16 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
+        String stars = request.getParameter("stars");
+        long timestamp = System.currentTimeMillis();
 
         Entity commentEntity = new Entity("Comment");
+        commentEntity.setProperty("name", name);
         commentEntity.setProperty("comment", comment);
+        commentEntity.setProperty("stars", stars);
+        commentEntity.setProperty("timestamp", timestamp);
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         datastore.put(commentEntity);
@@ -52,12 +58,20 @@ public class DataServlet extends HttpServlet {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         PreparedQuery results = datastore.prepare(query);
 
-        ArrayList<String> comments = new ArrayList<String>();
+        ArrayList<Comment> comments = new ArrayList<Comment>();
         for (Entity entity : results.asIterable()) {
-            comments.add((String)entity.getProperty("comment"));
+            long id = entity.getKey().getId();
+            String name = (String)entity.getProperty("name");
+            String comment = (String)entity.getProperty("comment");
+            int stars = Integer.parseInt((String)entity.getProperty("stars"));
+            long timestamp = (long) entity.getProperty("timestamp");
+
+            Comment newComment = new Comment(id, name, comment, stars, timestamp);
+            comments.add(newComment);
         }
+
         Gson gson = new Gson();
-        response.setContentType("text/html;");
+        response.setContentType("application/json;");
         response.getWriter().println(gson.toJson(comments));
   }
 }

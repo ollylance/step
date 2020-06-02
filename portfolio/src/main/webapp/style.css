@@ -113,6 +113,34 @@ iframe{
     margin-left: 2%;
 }
 
+form{
+    width: 60%;
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.8em, .9vw);
+    line-height: 1.4em;
+    letter-spacing: 1px;
+}
+
+textarea{
+    border: 2px solid #8EA4D2;
+    border-radius: 10px;
+    border-collapse: separate;
+    padding: 10px;
+    resize: none;
+    width: 40%;
+}
+
+#comment-content{
+    width: 60%;
+
+}
+
+.comment-placeholder{
+    
+}
+
 #quote-container{
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
