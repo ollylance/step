@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css"/>
     <script src="script.js"></script>
   </head>
-  <body>
+  <body onload="getComments()">
     <div id="content">
         <header>
             <h1>Oliver</h1>
@@ -19,10 +19,15 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="gallery.html">Gallery</a>
-            <a href="blog.html">Blog</a>
             <a href="comments.html" class="selected">Comments</a>
         </nav>
         <hr/>
+        <div id="comment-content"></div>
+        <form action="/data" method="POST">
+            <p>Enter a comment:</p>
+            <textarea name="comment-input"></textarea>
+            <input type="submit" />
+        </form>
         <hr/>
         <footer>
             <p>Oliver Lance <br/> 717-553-3107 &middot <a href="mailto:ollylance@google.com" target="_blank">ollylance@google.com</a>
