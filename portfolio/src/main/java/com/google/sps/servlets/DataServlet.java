@@ -16,21 +16,19 @@ package com.google.sps.servlets;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
+/** Servlet that stores and lists comments on webpage*/
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   private ArrayList<String> comments = new ArrayList<String>();
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    
     String comment = request.getParameter("comment-input");
     if(comment == null){
         comments.add("");
@@ -39,9 +37,6 @@ public class DataServlet extends HttpServlet {
         comments.add(comment);
     }
 
-    // String json = convertToJsonUsingGson(comments);
-    // response.setContentType("text/html;");
-    // response.getWriter().println(json);
     response.sendRedirect("/comments.html");
   }
 
