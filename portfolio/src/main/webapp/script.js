@@ -77,11 +77,31 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
+function addElem(container, type, content){
+    const newElem = document.createElement(type);
+    newElem.innerText = content;
+    container.appendChild(newElem);
+}
+
+function createNewComment(commentData){
+    var name = commentData.name;
+    var stars = commentData.stars;
+    var comment = commentData.comment;
+    
+    const commentContainer = document.createElement('div');
+    commentContainer.classList.add("comment-container");
+    addElem(commentContainer, "h3", name);
+    addElem(commentContainer, "h4", stars+"/5");
+    addElem(commentContainer, "p", comment);
+    return commentContainer;
+ 
+}
+
 async function getComments(){
     const resp = await fetch('/data');
     var comments = await resp.json();
     const responses = document.getElementById('comment-content');
     for(i = 0; i < comments.length; i++){
-        responses.innerHTML += comments[i] + "<br>"
+        responses.appendChild(createNewComment(comments[i]));
     }
 }

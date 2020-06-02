@@ -69,7 +69,6 @@ public class DataServlet extends HttpServlet {
             Comment newComment = new Comment(id, name, comment, stars, timestamp);
             comments.add(newComment);
         }
-
         Gson gson = new Gson();
         response.setContentType("application/json;");
         response.getWriter().println(gson.toJson(comments));

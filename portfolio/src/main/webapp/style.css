@@ -130,15 +130,52 @@ textarea{
     padding: 10px;
     resize: none;
     width: 40%;
+    min-width: 150px;
 }
 
 #comment-content{
-    width: 60%;
-
+    width: 100%;
+    display: grid;
 }
 
-.comment-placeholder{
-    
+.comment-container{
+    width: 40%;
+    display: inline-block;
+    border: 2px solid black;
+    border-radius: 10px;
+    text-align: left;
+    padding: 10px 30px;
+    margin: 10px auto;
+}
+
+.comment-container h3{
+    font-family: 'Cormorant', serif;
+    font-weight: 600;
+    font-size: max(1em, 1vw);
+    border-bottom: 1px solid black;
+    float: left;
+    width: 60%;
+}
+
+.comment-container h4{
+    font-family: 'Cormorant', serif;
+    font-weight: 400;
+    float: right;
+    margin-right: 2%;
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: max(1em, 1vw);
+}
+
+.comment-container p{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.8em, .9vw);
+    line-height: 1.4em;
+    letter-spacing: 1px;
+    width: 100%;
+    float: left;
+    margin-top: 0;
 }
 
 #quote-container{
