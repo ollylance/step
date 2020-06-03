@@ -94,14 +94,27 @@ function createNewComment(commentData){
     addElem(commentContainer, "h4", stars+"/5");
     addElem(commentContainer, "p", comment);
     return commentContainer;
- 
 }
 
-async function getComments(){
-    const resp = await fetch('/data');
-    var comments = await resp.json();
+//gets comments data and then adds two links to 
+//link to the previous page and next page  
+async function getComments(cursor, dir){
+    const resp = await fetch('/data?dir='+dir+cursor);
+    var commentData = await resp.json();
+    console.log(commentData);
     const responses = document.getElementById('comment-content');
+    responses.innerHTML = "";
+    var comments = commentData.comments;
     for(i = 0; i < comments.length; i++){
         responses.appendChild(createNewComment(comments[i]));
     }
+    var links = commentData.links;
+    const link1 = document.createElement('a');
+    link1.innerText = "Prev Page";
+    link1.href = 'javascript:getComments("' + links[0] +'", "-1")';
+    responses.appendChild(link1);
+    const link2 = document.createElement('a');
+    link2.innerText = "Next Page";
+    link2.href = 'javascript:getComments("' + links[1] +'","1")';
+    responses.appendChild(link2);
 }
