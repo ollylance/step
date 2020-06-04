@@ -60,20 +60,32 @@ public class DataServlet extends HttpServlet {
   @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //some cursor knowledge based on/used from https://cloud.google.com/appengine/docs/standard/java/datastore/query-cursors
-        int numComments = 4;
+        int numComments = Integer.parseInt(request.getParameter("numComments"));
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
         String startCursor = request.getParameter("cursor");
         int dir = Integer.parseInt(request.getParameter("dir"));
+        String sort = request.getParameter("sort");
+        System.out.println(sort);
 
-        //*else if* checks to see if trying to go back on first page
         if(startCursor != null){
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
-        } else if(startCursor == null && dir == -1){
-            response.sendRedirect("/comments.html");
-            return;
+        } 
+
+        Query query;
+        switch(sort){
+            case "new": query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+                        System.out.println("hello");
+                        break;
+            case "old": query = new Query("Comment").addSort("timestamp", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+                        break;
+            case "high": query = new Query("Comment").addSort("stars", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+                        break;
+            case "low": query = new Query("Comment").addSort("stars", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+                        break;
+            default: query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
         }
-        Query query = new Query("Comment").addSort("stars", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+
         if(dir == -1){
             query = query.reverse();   
         }

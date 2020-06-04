@@ -99,9 +99,10 @@ function createNewComment(commentData){
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
 async function getComments(cursor, dir){
-    const resp = await fetch('/data?dir='+dir+cursor);
+    var sort = document.getElementById("sort").value;
+    var numComments = document.getElementById("numComments").value;
+    const resp = await fetch('/data?numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
     var commentData = await resp.json();
-    console.log(commentData);
     const responses = document.getElementById('comment-content');
     responses.innerHTML = "";
     var comments = commentData.comments;

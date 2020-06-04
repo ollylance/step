@@ -23,7 +23,7 @@
             <a href="comments.html" class="selected">Comments</a>
         </nav>
         <hr/>
-        <form action="/data" method="POST">
+        <form id="add-comment" action="/data" method="POST">
             <p>Enter a comment:</p>
             <textarea id="name" name="name" rows="1" cols="50" max-length="60" 
                 placeholder="Name" required></textarea><br/>
@@ -36,6 +36,20 @@
             <input type="submit" />
         </form>
         <hr/>
+        <form onchange="getComments('', '0')" id="sort-results">
+            <select id="sort" name="sort">
+                <option value="new" selected>Newest</option>
+                <option value="old">Oldest</option>
+                <option value="high">Highest Rating</option>
+                <option value="low">Lowest Rating</option>
+            </select>
+            <select id="numComments" name="numComents">
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8" selected>8</option>
+                <option value="10">10</option>
+            </select>
+        </form>
         <div id="comment-content"></div>
        <hr/>
         
