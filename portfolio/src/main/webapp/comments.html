@@ -44,13 +44,22 @@
                 <option value="low">Lowest Rating</option>
             </select>
             <select id="numComments" name="numComents">
-                <option value="4">4</option>
+                <option value="4" selected>4</option>
                 <option value="6">6</option>
-                <option value="8" selected>8</option>
+                <option value="8">8</option>
                 <option value="10">10</option>
             </select>
         </form>
         <div id="comment-content"></div>
+        <div id="page-navigation">
+            <a class="prev-page" class="page-link" href="/">Prev Page</a>
+            <div id="pages">
+                <a class="prev-page" href="/"><div class="page-nums" id="prev-page-div"></div></a>
+                <a id="current-page-link" href="/"><div class="page-nums" id="curr-page-div"></div></a>
+                <a class="next-page" href="/"><div class="page-nums" id="next-page-div"></div></a>
+            </div>
+            <a class="next-page" class="page-link" href="/">Next Page</a>
+        </div>
        <hr/>
         
         <footer>

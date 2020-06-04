@@ -73,7 +73,7 @@ header h1{
     display: inline-block;
 }
 
-table{
+.info-table table{
     border-collapse: collapse;
     width: 100%;
     text-align: left;
@@ -82,7 +82,7 @@ table{
     font-size: max(.7em, .7vw);
 }
 
-th, td{
+.infotable th, .infotable td{
     border: 2px solid #8EA4D2;
     padding: 10px;
 }
@@ -194,6 +194,57 @@ button{
     padding: 5px;
 }
 
+
+#page-navigation{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#pages{
+    display: flex;
+}
+
+a.page-link{
+    color: black;
+    text-decoration: none;
+}
+
+a.page-link:hover{
+    color: #b00;
+    text-decoration: none;
+}
+
+.page-nums{
+    border: 2px solid #8EA4D2;
+    border-radius: 5px;
+    margin: 0 5px;
+    width: max(17px, 1.3vw);
+    height: max(17px, 1.3vw);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.7em, .7vw);
+}
+
+a.no-page{
+    color: gray;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+#current-page-link{
+    color: black;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+#curr-page-div{
+    background-color: lightgray;
+}
 
 #image-gallery{
     margin: 0 auto;

@@ -167,7 +167,10 @@ public class DataServlet extends HttpServlet {
         //checks if on last page or first page
         if(results.size() < numComments) lastPage = true;
 
-        if(pageNumber == 1){
+        if(pageNumber == 1 && lastPage){
+            data = new Data(comments, null, null, pageNumber);
+        }
+        else if(pageNumber == 1){
             data = new Data(comments, null, "&cursor="+cursorString, pageNumber);
         } else if(lastPage){
             data = new Data(comments, "&cursor="+startCursor, null, pageNumber);
