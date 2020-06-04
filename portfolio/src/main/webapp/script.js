@@ -98,10 +98,10 @@ function createNewComment(commentData){
 
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
-async function getComments(cursor, dir){
+async function getComments(cursor, dir, reload){
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
-    const resp = await fetch('/data?numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
+    const resp = await fetch('/data?reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
     var commentData = await resp.json();
     const responses = document.getElementById('comment-content');
     responses.innerHTML = "";
@@ -110,12 +110,16 @@ async function getComments(cursor, dir){
         responses.appendChild(createNewComment(comments[i]));
     }
     var links = commentData.links;
-    const link1 = document.createElement('a');
-    link1.innerText = "Prev Page";
-    link1.href = 'javascript:getComments("' + links[0] +'", "-1")';
-    responses.appendChild(link1);
-    const link2 = document.createElement('a');
-    link2.innerText = "Next Page";
-    link2.href = 'javascript:getComments("' + links[1] +'","1")';
-    responses.appendChild(link2);
+    if(links[0] != null){
+        const link1 = document.createElement('a');
+        link1.innerText = "Prev Page";
+        link1.href = 'javascript:getComments("' + links[0] +'", "-1", "false")';
+        responses.appendChild(link1);
+    }
+    if(links[1] != null){
+        const link2 = document.createElement('a');
+        link2.innerText = "Next Page";
+        link2.href = 'javascript:getComments("' + links[1] +'","1", "false")';
+        responses.appendChild(link2);
+    }
 }

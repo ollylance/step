@@ -20,11 +20,13 @@ public final class Data {
 
   ArrayList<Comment> comments;
   String[] links;
+  int pageNumber;
 
-  public Data(ArrayList<Comment> comments, String prevLink, String nextLink) {
+  public Data(ArrayList<Comment> comments, String prevLink, String nextLink, int pageNumber) {
     this.comments = comments;
     this.links = new String[2];
     this.links[0] = prevLink;
     this.links[1] = nextLink;
+    this.pageNumber = pageNumber;
   }
 }
