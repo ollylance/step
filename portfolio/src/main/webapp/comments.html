@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="author" content="Oliver Lance"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="google-signin-client_id" content="653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com">
     <title>My Comments</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css"/>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="script.js"></script>
   </head>
   <body onload="getComments('', '0', 'true')">
@@ -23,6 +25,8 @@
             <a href="comments.html" class="selected">Comments</a>
         </nav>
         <hr/>
+        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        <div onClick="signOut()">Sign Out</div>
         <form id="add-comment" action="/data" method="POST">
             <p>Enter a comment:</p>
             <textarea id="name" name="name" rows="1" cols="50" max-length="60" 
