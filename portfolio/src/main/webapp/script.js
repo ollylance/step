@@ -171,6 +171,23 @@ async function getComments(cursor, dir, reload){
     loadHTML(commentData);
 }
 
+//appends the user id to the comment
+async function addComment(){
+    var auth2 = gapi.auth2.getAuthInstance();
+    var id = auth2.currentUser.get().getId();
+    if(id == null){
+        alert("You need to be signed in to submit a comment");
+        return;
+    }
+    var form = document.getElementById("add-comment");
+    var formData = new FormData(form);
+    formData.append("id", id);
+    const params = new URLSearchParams();
+    for(const pair of formData){
+        params.append(pair[0], pair[1]);
+    }
+    const res = await fetch('/data?'+params.toString(), {method:'POST'});
+}
 
 async function onSignIn(googleUser) {
     // The ID token you need to pass to your backend:
@@ -186,4 +203,4 @@ function signOut() {
     auth2.signOut().then(function () {
       console.log('User signed out.');
     });
-  }
+}

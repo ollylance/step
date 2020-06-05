@@ -27,7 +27,7 @@
         <hr/>
         <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
         <div onClick="signOut()">Sign Out</div>
-        <form id="add-comment" action="/data" method="POST">
+        <form id="add-comment" onsubmit="addComment()">
             <p>Enter a comment:</p>
             <textarea id="name" name="name" rows="1" cols="50" max-length="60" 
                 placeholder="Name" required></textarea><br/>

@@ -86,9 +86,11 @@ public class DataServlet extends HttpServlet {
         String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
         String stars = request.getParameter("stars");
+        String id = request.getParameter("id");
         long timestamp = System.currentTimeMillis();
 
         Entity commentEntity = new Entity("Comment");
+        commentEntity.setProperty("personId", id);
         commentEntity.setProperty("name", name);
         commentEntity.setProperty("comment", comment);
         commentEntity.setProperty("stars", stars);
