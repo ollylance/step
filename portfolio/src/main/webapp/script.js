@@ -113,15 +113,15 @@ function setClasses(pages, tablePage, notNull){
 }
 
 //sets links and changes css with classes
-function loadPageNavigation(links, pageNumber){
-    var prevLink = 'javascript:getComments("' + links[0] +'", "-1", "false")';
-    var nextLink = 'javascript:getComments("' + links[1] +'", "1", "false")';
+function loadPageNavigation(pLink, nLink, pageNumber){
+    var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false")';
+    var nextLink = 'javascript:getComments("' + nLink +'", "1", "false")';
     var prevPages = document.getElementsByClassName('prev-page');
     var nextPages = document.getElementsByClassName('next-page');
     const prevPageTable = document.getElementById('prev-page-div');
     const currPageTable = document.getElementById('curr-page-div');
     const nextPageTable = document.getElementById('next-page-div');
-    if(links[0] != null){
+    if(pLink != null){
         prevPages[0].href = prevLink;
         prevPages[1].href = prevLink;
         prevPageTable.innerText = pageNumber-1;
@@ -135,7 +135,7 @@ function loadPageNavigation(links, pageNumber){
     
     currPageTable.innerText = pageNumber;
 
-    if(links[1] != null){
+    if(nLink != null){
         nextPages[0].href = nextLink;
         nextPages[1].href = nextLink;
         nextPageTable.innerText = pageNumber+1;
@@ -155,7 +155,7 @@ function loadHTML(commentData){
     for(i = 0; i < comments.length; i++){
         responses.appendChild(createNewComment(comments[i]));
     }
-    loadPageNavigation(commentData.links, commentData.pageNumber);
+    loadPageNavigation(commentData.prevLink, commentData.nextLink, commentData.pageNumber);
 }
 
 
