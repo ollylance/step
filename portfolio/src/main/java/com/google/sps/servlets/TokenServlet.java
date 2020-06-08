@@ -93,9 +93,4 @@ public class TokenServlet extends HttpServlet {
         }
         response.sendRedirect("/comments.html");
   }
-
-  @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        
-  }
 }

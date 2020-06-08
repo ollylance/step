@@ -16,13 +16,13 @@ package com.google.sps.data;
 import com.google.sps.data.Comment;
 import java.util.ArrayList;
 
-public final class Data {
+public final class PageInfo {
 
   ArrayList<Comment> comments;
   String[] links;
   int pageNumber;
 
-  public Data(ArrayList<Comment> comments, String prevLink, String nextLink, int pageNumber) {
+  public PageInfo(ArrayList<Comment> comments, String prevLink, String nextLink, int pageNumber) {
     this.comments = comments;
     this.links = new String[2];
     this.links[0] = prevLink;

@@ -27,7 +27,7 @@ import com.google.appengine.api.datastore.Key;
 import java.io.IOException;
 import java.util.ArrayList;
 import com.google.sps.data.Comment;
-import com.google.sps.data.Data;
+import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -163,19 +163,19 @@ public class DataServlet extends HttpServlet {
         }
 
         String cursorString = results.getCursor().toWebSafeString();
-        Data data;
+        PageInfo data;
         //checks if on last page or first page
         if(results.size() < numComments) lastPage = true;
 
         if(pageNumber == 1 && lastPage){
-            data = new Data(comments, null, null, pageNumber);
+            data = new PageInfo(comments, null, null, pageNumber);
         }
         else if(pageNumber == 1){
-            data = new Data(comments, null, "&cursor="+cursorString, pageNumber);
+            data = new PageInfo(comments, null, "&cursor="+cursorString, pageNumber);
         } else if(lastPage){
-            data = new Data(comments, "&cursor="+startCursor, null, pageNumber);
+            data = new PageInfo(comments, "&cursor="+startCursor, null, pageNumber);
         } else{
-            data = new Data(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
+            data = new PageInfo(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
         }
         Gson gson = new Gson();
         response.setContentType("application/json;");
