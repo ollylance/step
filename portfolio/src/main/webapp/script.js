@@ -81,6 +81,7 @@ function addElem(container, type, content, id) {
     const newElem = document.createElement(type);
     newElem.innerText = content;
     if (type == "div") {
+        newElem.id = "delete-comment";
         newElem.addEventListener("click", function() {
             deleteComment(id);
         });
@@ -175,7 +176,7 @@ async function getComments(cursor, dir, reload, pageNum) {
     var auth2 = gapi.auth2.getAuthInstance();
     var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
     if (currentProfileToken == undefined) currentProfileToken = "";
-    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
+    const resp = await fetch('/data?currentProfileToken='+currentProfileToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
@@ -206,7 +207,42 @@ async function deleteComment(commentId) {
         return;
     }
     const res = await fetch('/delete-comment?currentProfileToken='+currentProfileToken+'&commentId='+commentId, {method:'POST'});
-    await getComments("", 0, true);
+    await getComments("", 0, true, "1");
+}
+
+function loadProfileHTML(profileData){
+    const profileImg = document.getElementById('user-profile-img');
+    const userName = document.getElementById('user-name');
+    const google = document.getElementById('google-signin');
+    const signout = document.getElementById('signout');
+    profileImg.src = profileData[0];
+    if (profileImg.classList.contains("hide")) profileImg.classList.remove("hide");
+    userName.innerText = profileData[1] + ' ' + profileData[2];
+    if (userName.classList.contains("hide")) userName.classList.remove("hide");
+    if (!google.classList.contains("hide")) google.classList.add("hide");
+    if (signout.classList.contains("hide")) signout.classList.remove("hide");
+}
+
+async function getProfileInfo(){
+    var auth2 = gapi.auth2.getAuthInstance();
+    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (currentProfileToken == undefined) currentProfileToken = "";
+    const resp = await fetch('/profile?currentProfileToken='+currentProfileToken);
+    var profileData = await resp.json();
+    loadProfileHTML(profileData);
+}
+
+function hideProfileInfo(){
+    const signout = document.getElementById('signout');
+    const profileImg = document.getElementById('user-profile-img');
+    const userName = document.getElementById('user-name');
+    const google = document.getElementById('google-signin');
+    profileImg.src = "";
+    if (!profileImg.classList.contains("hide")) profileImg.classList.add("hide");
+    userName.innerText = "";
+    if (!userName.classList.contains("hide")) userName.classList.add("hide");
+    if (google.classList.contains("hide")) google.classList.remove("hide");
+    if (!signout.classList.contains("hide")) signout.classList.add("hide");
 }
 
 function onSignIn(googleUser) {
@@ -215,8 +251,9 @@ function onSignIn(googleUser) {
         var auth2 = gapi.auth2.init();
         auth2.currentUser.get().getId();
         var id_token = googleUser.getAuthResponse().id_token;
-        const res = fetch('/tokensignin?token_id='+id_token, {method:'POST'});
-        getComments("", 0, false);
+        const res = fetch('/profile?token_id='+id_token, {method:'POST'});
+        getComments("", 0, false, "1");
+        getProfileInfo();
         return;
     });
     return;
@@ -225,7 +262,8 @@ function onSignIn(googleUser) {
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
-        getComments("", 0, false);
+        getComments("", 0, true, "1");
+        hideProfileInfo();
         console.log('User signed out.');
     });
 }

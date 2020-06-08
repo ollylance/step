@@ -40,8 +40,8 @@ import com.google.api.client.json.gson.GsonFactory;
 
 /** Servlet that makes a validates id token and stores data in database.**/
 // referenced from https://developers.google.com/identity/sign-in/web/backend-auth
-@WebServlet("/tokensignin")
-public class TokenServlet extends HttpServlet {
+@WebServlet("/profile")
+public class ProfileServlet extends HttpServlet {
 
     UrlFetchTransport transport = new UrlFetchTransport();
     GsonFactory gson = new GsonFactory();
@@ -50,7 +50,8 @@ public class TokenServlet extends HttpServlet {
         .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
         .build();
 
-    private Entity keyExists(String property, String entryKey) {
+    //returns a profile with a specific name in a property
+    private Entity getProfile(String profileId) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         Query query = new Query("Profile");
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(1000000);
@@ -62,7 +63,7 @@ public class TokenServlet extends HttpServlet {
             return null;
         }
         for (Entity entity : results) {
-            if (entity.getProperty(property).equals(entryKey)) return entity;
+            if (entity.getProperty("id").equals(profileId)) return entity;
         }
         return null;
     }
@@ -74,8 +75,8 @@ public class TokenServlet extends HttpServlet {
         try {
             if (verifier.verify(idToken)) {
                 Payload payload = idToken.getPayload();
-                //if they specific id is not already in the database
-                if (keyExists("id", payload.getSubject()) == null) {
+                //if the specific id is not already in the database
+                if (getProfile(payload.getSubject()) == null) {
                     Entity profileEntity = new Entity("Profile");
                     profileEntity.setProperty("id", payload.getSubject());
                     profileEntity.setProperty("fname", (String) payload.get("given_name"));
@@ -92,6 +93,41 @@ public class TokenServlet extends HttpServlet {
             System.err.println("Token not verified:" + e);
         }
         response.sendRedirect("/comments.html");
-  }
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String currentProfile = null;
+        String currentProfileToken = request.getParameter("currentProfileToken");
+        if (!currentProfileToken.equals("")) {
+            GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
+            try {
+                if (verifier.verify(idToken)) {
+                    Payload payload = idToken.getPayload();
+                    //if the specific id is not already in the database
+                    Entity profile = getProfile(payload.getSubject());
+                    if (profile != null) {
+                        ArrayList<String> profileData = new ArrayList<String>();
+                        String picUrl = (String) profile.getProperty("picUrl");
+                        profileData.add(picUrl);
+                        String fname = (String) profile.getProperty("fname");
+                        profileData.add(fname);
+                        String lname = (String) profile.getProperty("lname");
+                        profileData.add(lname);
+
+                        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+                        Gson gson = new Gson();
+                        response.setContentType("application/json;");
+                        response.getWriter().println(gson.toJson(profileData));
+                        return;
+                    }
+                    response.sendRedirect("/comments.html");
+                }
+            } catch (Exception e) {
+                System.err.println("Token not verified:" + e);
+                response.sendRedirect("/comments.html");
+            }
+        }
+    }
 }
 

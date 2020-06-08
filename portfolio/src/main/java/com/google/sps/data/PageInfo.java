@@ -20,7 +20,7 @@ public final class PageInfo {
 
   ArrayList<Comment> comments;
   String prevLink;
-  String nextlink;
+  String nextLink;
   int pageNumber;
 
   public PageInfo(ArrayList<Comment> comments, String prevLink, String nextLink, int pageNumber) {
