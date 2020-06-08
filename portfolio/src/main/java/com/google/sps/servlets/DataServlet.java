@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.sps.data.Comment;
-import com.google.sps.data.Data;
+import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -45,18 +45,16 @@ import com.google.api.client.json.gson.GsonFactory;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-    private int pageNumber;
-
-    private int addPageNumber(int dir, int pageNumber){
-        if(dir > 0){
+    private int addPageNumber(int dir, int pageNumber) {
+        if (dir > 0) {
             pageNumber += 1;
-        } else if(dir < 0){
+        } else if (dir < 0) {
             pageNumber -= 1;
         }
         return pageNumber;
     }
 
-    private Boolean lastPage(QueryResultList<Entity> results, String sort){
+    private Boolean lastPage(QueryResultList<Entity> results, String sort) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(1);
         Cursor startCursor = results.getCursor();
@@ -64,22 +62,26 @@ public class DataServlet extends HttpServlet {
         Query query = getQueryType(sort);
         PreparedQuery res = datastore.prepare(query);
         results = res.asQueryResultList(fetchOptions);
-        if(results.size() == 0){
+        if(results.size() == 0) {
             return true;
         }
         return false;
     }
 
-    private Query getQueryType(String sort){
+    private Query getQueryType(String sort) {
         Query query;
-        switch(sort){
-            case "new": query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+        switch(sort) {
+            case "new": 
+                        query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
-            case "old": query = new Query("Comment").addSort("timestamp", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+            case "old": 
+                        query = new Query("Comment").addSort("timestamp", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
-            case "high": query = new Query("Comment").addSort("stars", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+            case "high": 
+                        query = new Query("Comment").addSort("stars", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
-            case "low": query = new Query("Comment").addSort("stars", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+            case "low": 
+                        query = new Query("Comment").addSort("stars", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
             default: query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
         }
@@ -103,10 +105,10 @@ public class DataServlet extends HttpServlet {
         //checks if profile is verified and then initializes the current profile id;
         String personId = null;
         String personIdToken = request.getParameter("personIdToken");
-        if(!personIdToken.equals("")){
+        if (!personIdToken.equals("")) {
             GoogleIdToken idToken = GoogleIdToken.parse(gson, personIdToken);
-            try{
-                if(verifier.verify(idToken)){
+            try {
+                if (verifier.verify(idToken)) {
                     Payload payload = idToken.getPayload();
                     personId = payload.getSubject();
                 }
@@ -134,6 +136,7 @@ public class DataServlet extends HttpServlet {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
         String startCursor = request.getParameter("cursor");
+        int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         Boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
         int dir = Integer.parseInt(request.getParameter("dir"));
         String sort = request.getParameter("sort");
@@ -142,10 +145,10 @@ public class DataServlet extends HttpServlet {
         //checks if profile is verified and then initializes the current profile id;
         String currentProfile = null;
         String currentProfileToken = request.getParameter("currentProfileToken");
-        if(!currentProfileToken.equals("")){
+        if (!currentProfileToken.equals("")) {
             GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
-            try{
-                if(verifier.verify(idToken)){
+            try {
+                if (verifier.verify(idToken)) {
                     Payload payload = idToken.getPayload();
                     currentProfile = payload.getSubject();
                 }
@@ -154,16 +157,16 @@ public class DataServlet extends HttpServlet {
             }
         }
 
-        if(startCursor != null){
+        if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
         } 
-        if(reload){
+        if (reload) {
             pageNumber = 1;
         }
         pageNumber = addPageNumber(dir, pageNumber);
 
         Query query = getQueryType(sort);
-        if(dir < 0){
+        if (dir < 0) {
             query = query.reverse();   
         }
 
@@ -172,7 +175,7 @@ public class DataServlet extends HttpServlet {
         try {
             results = res.asQueryResultList(fetchOptions);
             //reverses results if going back a page so results display forward
-            if(dir < 0){
+            if (dir < 0) {
                 startCursor = results.getCursor().toWebSafeString();
                 query = query.reverse();
                 res = datastore.prepare(query);
@@ -180,8 +183,10 @@ public class DataServlet extends HttpServlet {
                 results = res.asQueryResultList(fetchOptions);
             }
             //checks if this is the last page
-            if(results.size() == numComments){
+            if (results.size() == numComments) {
                 lastPage = lastPage(results, sort);
+            } else if (results.size() < numComments){
+                lastPage = true;
             }
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException happens when an invalid cursor is used.
@@ -198,7 +203,7 @@ public class DataServlet extends HttpServlet {
             long commentId = entity.getKey().getId();
             String personId = (String)entity.getProperty("personId");
             Boolean showTrash = false;
-            if(personId.equals(currentProfile)){
+            if (personId.equals(currentProfile)) {
                 showTrash = true;
             }
             String name = (String)entity.getProperty("name");
@@ -210,22 +215,21 @@ public class DataServlet extends HttpServlet {
         }
 
         String cursorString = results.getCursor().toWebSafeString();
-        Data data;
+        PageInfo data;
         //checks if on last page or first page
-        if(results.size() < numComments) lastPage = true;
-
-        if(pageNumber == 1 && lastPage){
-            data = new Data(comments, null, null, pageNumber);
+        if (pageNumber == 1 && lastPage) {
+            data = new PageInfo(comments, null, null, pageNumber);
         }
-        else if(pageNumber == 1){
-            data = new Data(comments, null, "&cursor="+cursorString, pageNumber);
-        } else if(lastPage){
-            data = new Data(comments, "&cursor="+startCursor, null, pageNumber);
-        } else{
-            data = new Data(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
+        else if (pageNumber == 1) {
+            data = new PageInfo(comments, null, "&cursor="+cursorString, pageNumber);
+        } else if (lastPage) {
+            data = new PageInfo(comments, "&cursor="+startCursor, null, pageNumber);
+        } else {
+            data = new PageInfo(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
         }
         Gson gson = new Gson();
         response.setContentType("application/json;");
         response.getWriter().println(gson.toJson(data));
-  }
+    }
 }
+

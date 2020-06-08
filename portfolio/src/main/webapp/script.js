@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-function resizeOverlay(){
+function resizeOverlay() {
     const background = document.getElementById("background-clicked");
     const img = document.getElementById("enlarged-clicked");
     img.style.maxHeight = (window.innerHeight * .75) + "px";
@@ -24,7 +24,7 @@ function resizeOverlay(){
 
 //sets attributes for image and background overlay to display
 //when image is clicked; then monitors for next event
-function openImg(elem){
+function openImg(elem) {
     imgURL = elem.src;
     const background = document.getElementById("background-overlay");
     background.removeAttribute("id");
@@ -49,7 +49,7 @@ function openImg(elem){
 
     //detects when the background is clicked next to close 
     //the image and background overlay
-    background.addEventListener('click', function(){
+    background.addEventListener('click', function() {
         background.removeAttribute("id");
         img.removeAttribute("id");
         background.setAttribute("id", "background-overlay");
@@ -77,18 +77,18 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
-function addElem(container, type, content, id){
+function addElem(container, type, content, id) {
     const newElem = document.createElement(type);
     newElem.innerText = content;
-    if(type == "div"){
-        newElem.addEventListener("click", function(){
+    if (type == "div") {
+        newElem.addEventListener("click", function() {
             deleteComment(id);
         });
     }
     container.appendChild(newElem);
 }
 
-function createNewComment(commentData){
+function createNewComment(commentData) {
     var name = commentData.name;
     var stars = commentData.stars;
     var comment = commentData.comment;
@@ -99,43 +99,43 @@ function createNewComment(commentData){
     addElem(commentContainer, "h4", stars+"/5");
     addElem(commentContainer, "p", comment);
 
-    if(commentData.showTrash){
+    if (commentData.showTrash) {
         addElem(commentContainer, "div", "Delete", commentData.id);
     }
     return commentContainer;
 }
 
-function setClasses(pages, tablePage, notNull){
-    if(notNull){
-        if(pages[0].classList.contains("page-link")) pages[0].classList.remove("page-link");
-        if(pages[1].classList.contains("page-link")) pages[1].classList.remove("page-link");
-        if(!pages[0].classList.contains("no-page")) pages[0].classList.add("no-page");
-        if(!pages[1].classList.contains("no-page")) pages[1].classList.add("no-page");
-        if(!tablePage.classList.contains("no-page-table")) tablePage.classList.add("no-page-table");
-    } else{
-        if(!pages[0].classList.contains("page-link")) pages[0].classList.add("page-link");
-        if(!pages[1].classList.contains("page-link")) pages[1].classList.add("page-link");
-        if(pages[0].classList.contains("no-page")) pages[0].classList.remove("no-page");
-        if(pages[1].classList.contains("no-page")) pages[1].classList.remove("no-page");
-        if(tablePage.classList.contains("no-page-table")) tablePage.classList.remove("no-page-table");
+function setClasses(pages, tablePage, notNull) {
+    if (notNull) {
+        if (pages[0].classList.contains("page-link")) pages[0].classList.remove("page-link");
+        if (pages[1].classList.contains("page-link")) pages[1].classList.remove("page-link");
+        if (!pages[0].classList.contains("no-page")) pages[0].classList.add("no-page");
+        if (!pages[1].classList.contains("no-page")) pages[1].classList.add("no-page");
+        if (!tablePage.classList.contains("no-page-table")) tablePage.classList.add("no-page-table");
+    } else {
+        if (!pages[0].classList.contains("page-link")) pages[0].classList.add("page-link");
+        if (!pages[1].classList.contains("page-link")) pages[1].classList.add("page-link");
+        if (pages[0].classList.contains("no-page")) pages[0].classList.remove("no-page");
+        if (pages[1].classList.contains("no-page")) pages[1].classList.remove("no-page");
+        if (tablePage.classList.contains("no-page-table")) tablePage.classList.remove("no-page-table");
     }
 }
 
 //sets links and changes css with classes
-function loadPageNavigation(links, pageNumber){
-    var prevLink = 'javascript:getComments("' + links[0] +'", "-1", "false")';
-    var nextLink = 'javascript:getComments("' + links[1] +'", "1", "false")';
+function loadPageNavigation(pLink, nLink, pageNumber){
+    var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false", "'+ pageNumber +'")';
+    var nextLink = 'javascript:getComments("' + nLink +'", "1", "false", "'+ pageNumber +'")';
     var prevPages = document.getElementsByClassName('prev-page');
     var nextPages = document.getElementsByClassName('next-page');
     const prevPageTable = document.getElementById('prev-page-div');
     const currPageTable = document.getElementById('curr-page-div');
     const nextPageTable = document.getElementById('next-page-div');
-    if(links[0] != null){
+    if (pLink != null) {
         prevPages[0].href = prevLink;
         prevPages[1].href = prevLink;
         prevPageTable.innerText = pageNumber-1;
         setClasses(prevPages, prevPageTable, false);
-    } else{
+    } else {
         prevPages[0].href = "";
         prevPages[1].href = "";
         prevPageTable.innerText = "";
@@ -144,12 +144,12 @@ function loadPageNavigation(links, pageNumber){
     
     currPageTable.innerText = pageNumber;
 
-    if(links[1] != null){
+    if (nLink != null) {
         nextPages[0].href = nextLink;
         nextPages[1].href = nextLink;
         nextPageTable.innerText = pageNumber+1;
         setClasses(nextPages, nextPageTable, false);
-    } else{
+    } else {
         nextPages[0].href = "";
         nextPages[1].href = "";
         nextPageTable.innerText = "";
@@ -157,34 +157,34 @@ function loadPageNavigation(links, pageNumber){
     }
 }
 
-function loadHTML(commentData){
+function loadHTML (commentData) {
     const responses = document.getElementById('comment-content');
     responses.innerHTML = "";
     var comments = commentData.comments;
-    for(i = 0; i < comments.length; i++){
+    for (i = 0; i < comments.length; i++) {
         responses.appendChild(createNewComment(comments[i]));
     }
-    loadPageNavigation(commentData.links, commentData.pageNumber);
+    loadPageNavigation(commentData.prevLink, commentData.nextLink, commentData.pageNumber);
 }
 
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
-async function getComments(cursor, dir, reload){
+async function getComments(cursor, dir, reload, pageNum) {
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
     var auth2 = gapi.auth2.getAuthInstance();
     var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if(currentProfileToken == undefined) currentProfileToken = "";
-    const resp = await fetch('/data?currentProfileToken='+currentProfileToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
+    if (currentProfileToken == undefined) currentProfileToken = "";
+    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
 
 //appends the user id to the comment
-async function addComment(){
+async function addComment() {
     var auth2 = gapi.auth2.getAuthInstance();
     var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if(currentProfileToken == undefined){
+    if (currentProfileToken == undefined) {
         alert("You need to be signed in to submit a comment");
         return;
     }
@@ -192,16 +192,16 @@ async function addComment(){
     var formData = new FormData(form);
     formData.append("personIdToken", currentProfileToken);
     const params = new URLSearchParams();
-    for(const pair of formData){
+    for (const pair of formData) {
         params.append(pair[0], pair[1]);
     }
     const res = await fetch('/data?'+params.toString(), {method:'POST'});
 }
 
-async function deleteComment(commentId){
+async function deleteComment(commentId) {
     var auth2 = gapi.auth2.getAuthInstance();
     var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if(currentProfileToken == undefined){
+    if(currentProfileToken == undefined) {
         alert("You need to be signed in to delete a comment");
         return;
     }

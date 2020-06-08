@@ -50,7 +50,7 @@ public class TokenServlet extends HttpServlet {
         .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
         .build();
 
-    private Entity keyExists(String property, String entryKey){
+    private Entity keyExists(String property, String entryKey) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         Query query = new Query("Profile");
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(1000000);
@@ -62,7 +62,7 @@ public class TokenServlet extends HttpServlet {
             return null;
         }
         for (Entity entity : results) {
-            if(entity.getProperty(property).equals(entryKey)) return entity;
+            if (entity.getProperty(property).equals(entryKey)) return entity;
         }
         return null;
     }
@@ -71,11 +71,11 @@ public class TokenServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String tokenString = request.getParameter("token_id");
         GoogleIdToken idToken = GoogleIdToken.parse(gson, tokenString);
-        try{
-            if(verifier.verify(idToken)){
+        try {
+            if (verifier.verify(idToken)) {
                 Payload payload = idToken.getPayload();
                 //if they specific id is not already in the database
-                if(keyExists("id", payload.getSubject()) == null){
+                if (keyExists("id", payload.getSubject()) == null) {
                     Entity profileEntity = new Entity("Profile");
                     profileEntity.setProperty("id", payload.getSubject());
                     profileEntity.setProperty("fname", (String) payload.get("given_name"));
@@ -93,9 +93,5 @@ public class TokenServlet extends HttpServlet {
         }
         response.sendRedirect("/comments.html");
   }
-
-  @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        
-  }
 }
+

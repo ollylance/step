@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.sps.data.Comment;
-import com.google.sps.data.Data;
+import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -59,7 +59,7 @@ public class DeleteCommentServlet extends HttpServlet {
         }
         for (Entity entity : results) {
             String id = Long.toString(entity.getKey().getId());
-            if(id.equals(entryKey)) return entity;
+            if (id.equals(entryKey)) return entity;
         }
         return null;
     }
@@ -77,10 +77,10 @@ public class DeleteCommentServlet extends HttpServlet {
         //checks if profile is verified and then initializes the current profile id;
         String currentProfile = null;
         String currentProfileToken = request.getParameter("currentProfileToken");
-        if(!currentProfileToken.equals("")){
+        if (!currentProfileToken.equals("")) {
             GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
-            try{
-                if(verifier.verify(idToken)){
+            try {
+                if (verifier.verify(idToken)) {
                     Payload payload = idToken.getPayload();
                     currentProfile = payload.getSubject();
                 }
@@ -89,10 +89,11 @@ public class DeleteCommentServlet extends HttpServlet {
             }
         }
         Entity comment = getEntry("id", commentId);
-        if(comment.getProperty("personId").equals(currentProfile)){
+        if (comment.getProperty("personId").equals(currentProfile)) {
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             datastore.delete(comment.getKey());
         }
         response.sendRedirect("/comments.html");
   }
 }
+
