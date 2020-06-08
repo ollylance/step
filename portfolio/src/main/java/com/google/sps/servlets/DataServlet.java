@@ -40,8 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-    private int pageNumber;
-
     private int addPageNumber(int dir, int pageNumber) {
         if (dir > 0) {
             pageNumber += 1;
@@ -111,6 +109,7 @@ public class DataServlet extends HttpServlet {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
         String startCursor = request.getParameter("cursor");
+        int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
         Boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
         int dir = Integer.parseInt(request.getParameter("dir"));
         String sort = request.getParameter("sort");
@@ -119,9 +118,7 @@ public class DataServlet extends HttpServlet {
         if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
         } 
-        if (reload) {
-            pageNumber = 1;
-        }
+        
         pageNumber = addPageNumber(dir, pageNumber);
 
         Query query = getQueryType(sort);
@@ -144,6 +141,8 @@ public class DataServlet extends HttpServlet {
             //checks if this is the last page
             if (results.size() == numComments) {
                 lastPage = lastPage(results, sort);
+            } else if (results.size() < numComments) {
+                lastPage = true;
             }
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException happens when an invalid cursor is used.
@@ -170,8 +169,6 @@ public class DataServlet extends HttpServlet {
         String cursorString = results.getCursor().toWebSafeString();
         PageInfo data;
         //checks if on last page or first page
-        if (results.size() < numComments) lastPage = true;
-
         if (pageNumber == 1 && lastPage) {
             data = new PageInfo(comments, null, null, pageNumber);
         }

@@ -114,8 +114,8 @@ function setClasses(pages, tablePage, notNull) {
 
 //sets links and changes css with classes
 function loadPageNavigation(pLink, nLink, pageNumber) {
-    var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false")';
-    var nextLink = 'javascript:getComments("' + nLink +'", "1", "false")';
+    var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false", "'+ pageNumber +'")';
+    var nextLink = 'javascript:getComments("' + nLink +'", "1", "false", "'+ pageNumber +'")';
     var prevPages = document.getElementsByClassName('prev-page');
     var nextPages = document.getElementsByClassName('next-page');
     const prevPageTable = document.getElementById('prev-page-div');
@@ -161,12 +161,12 @@ function loadHTML(commentData) {
 
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
-async function getComments(cursor, dir, reload) {
+async function getComments(cursor, dir, reload, pageNum) {
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
     var auth2 = gapi.auth2.getAuthInstance();
     var id = auth2.currentUser.get().getId();
-    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
+    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
