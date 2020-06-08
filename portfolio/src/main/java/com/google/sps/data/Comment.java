@@ -21,12 +21,14 @@ public final class Comment {
   private final String comment;
   private final int stars;
   private final long timestamp;
+  private final Boolean showTrash;
 
-  public Comment(long id, String name, String comment, int stars, long timestamp) {
+  public Comment(long id, String name, String comment, int stars, long timestamp, Boolean showTrash) {
     this.id = id;
     this.name = name;
     this.comment = comment;
     this.stars = stars;
     this.timestamp = timestamp;
+    this.showTrash = showTrash;
   }
 }

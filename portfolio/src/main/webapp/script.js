@@ -77,9 +77,14 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
-function addElem(container, type, content){
+function addElem(container, type, content, id){
     const newElem = document.createElement(type);
     newElem.innerText = content;
+    if(type == "div"){
+        newElem.addEventListener("click", function(){
+            deleteComment(id);
+        });
+    }
     container.appendChild(newElem);
 }
 
@@ -87,12 +92,16 @@ function createNewComment(commentData){
     var name = commentData.name;
     var stars = commentData.stars;
     var comment = commentData.comment;
-    
+
     const commentContainer = document.createElement('div');
     commentContainer.classList.add("comment-container");
     addElem(commentContainer, "h3", name);
     addElem(commentContainer, "h4", stars+"/5");
     addElem(commentContainer, "p", comment);
+
+    if(commentData.showTrash){
+        addElem(commentContainer, "div", "Delete", commentData.id);
+    }
     return commentContainer;
 }
 
@@ -158,15 +167,15 @@ function loadHTML(commentData){
     loadPageNavigation(commentData.links, commentData.pageNumber);
 }
 
-
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
 async function getComments(cursor, dir, reload){
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
     var auth2 = gapi.auth2.getAuthInstance();
-    var id = auth2.currentUser.get().getId();
-    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
+    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if(currentProfileToken == undefined) currentProfileToken = "";
+    const resp = await fetch('/data?currentProfileToken='+currentProfileToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
@@ -174,14 +183,14 @@ async function getComments(cursor, dir, reload){
 //appends the user id to the comment
 async function addComment(){
     var auth2 = gapi.auth2.getAuthInstance();
-    var id = auth2.currentUser.get().getId();
-    if(id == null){
+    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if(currentProfileToken == undefined){
         alert("You need to be signed in to submit a comment");
         return;
     }
     var form = document.getElementById("add-comment");
     var formData = new FormData(form);
-    formData.append("id", id);
+    formData.append("personIdToken", currentProfileToken);
     const params = new URLSearchParams();
     for(const pair of formData){
         params.append(pair[0], pair[1]);
@@ -189,18 +198,34 @@ async function addComment(){
     const res = await fetch('/data?'+params.toString(), {method:'POST'});
 }
 
-async function onSignIn(googleUser) {
+async function deleteComment(commentId){
+    var auth2 = gapi.auth2.getAuthInstance();
+    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if(currentProfileToken == undefined){
+        alert("You need to be signed in to delete a comment");
+        return;
+    }
+    const res = await fetch('/delete-comment?currentProfileToken='+currentProfileToken+'&commentId='+commentId, {method:'POST'});
+    await getComments("", 0, true);
+}
+
+function onSignIn(googleUser) {
     // The ID token you need to pass to your backend:
     gapi.load('auth2', function() {
         var auth2 = gapi.auth2.init();
+        auth2.currentUser.get().getId();
+        var id_token = googleUser.getAuthResponse().id_token;
+        const res = fetch('/tokensignin?token_id='+id_token, {method:'POST'});
+        getComments("", 0, false);
+        return;
     });
-    var id_token = googleUser.getAuthResponse().id_token;
-    const res = await fetch('/tokensignin?token_id='+id_token, {method:'POST'});
+    return;
 }
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
-      console.log('User signed out.');
+        getComments("", 0, false);
+        console.log('User signed out.');
     });
 }
