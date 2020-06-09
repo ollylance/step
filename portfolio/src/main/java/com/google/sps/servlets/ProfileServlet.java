@@ -43,13 +43,6 @@ import com.google.api.client.json.gson.GsonFactory;
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
 
-    UrlFetchTransport transport = new UrlFetchTransport();
-    GsonFactory gson = new GsonFactory();
-
-    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-        .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-        .build();
-
     //returns a profile with a specific name in a property
     private Entity getProfile(String profileId) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -70,6 +63,12 @@ public class ProfileServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        UrlFetchTransport transport = new UrlFetchTransport();
+        GsonFactory gson = new GsonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
+            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
+            .build();
+
         String tokenString = request.getParameter("token_id");
         GoogleIdToken idToken = GoogleIdToken.parse(gson, tokenString);
         try {
@@ -97,6 +96,12 @@ public class ProfileServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        UrlFetchTransport transport = new UrlFetchTransport();
+        GsonFactory gson = new GsonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
+            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
+            .build();
+
         String currentProfile = null;
         String currentProfileToken = request.getParameter("currentProfileToken");
         if (!currentProfileToken.equals("")) {
@@ -116,9 +121,9 @@ public class ProfileServlet extends HttpServlet {
                         profileData.add(lname);
 
                         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                        Gson gson = new Gson();
+                        Gson gsonHelper = new Gson();
                         response.setContentType("application/json;");
-                        response.getWriter().println(gson.toJson(profileData));
+                        response.getWriter().println(gsonHelper.toJson(profileData));
                         return;
                     }
                     response.sendRedirect("/comments.html");

@@ -32,8 +32,8 @@ function openImg(elem) {
     background.style.height = window.innerHeight + "px";
     background.style.top = window.pageYOffset + "px";
 
-    const img = document.getElementById("enlarged-img"); 
     img.src = imgURL;
+    const img = document.getElementById("enlarged-img"); 
     img.alt = "enlarged gallery image";
     img.removeAttribute("id");
     img.setAttribute("id", "enlarged-clicked");
@@ -264,6 +264,5 @@ function signOut() {
     auth2.signOut().then(function () {
         getComments("", 0, true, "1");
         hideProfileInfo();
-        console.log('User signed out.');
     });
 }

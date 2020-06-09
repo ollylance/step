@@ -88,15 +88,14 @@ public class DataServlet extends HttpServlet {
         return query;
     }
 
-    UrlFetchTransport transport = new UrlFetchTransport();
-    GsonFactory gson = new GsonFactory();
-
-    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-        .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-        .build();
-
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        UrlFetchTransport transport = new UrlFetchTransport();
+        GsonFactory gson = new GsonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
+            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
+            .build();
+
         String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
         String stars = request.getParameter("stars");
@@ -132,6 +131,12 @@ public class DataServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //some cursor knowledge based on/used from https://cloud.google.com/appengine/docs/standard/java/datastore/query-cursors
+        UrlFetchTransport transport = new UrlFetchTransport();
+        GsonFactory gson = new GsonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
+            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
+            .build();
+
         int numComments = Integer.parseInt(request.getParameter("numComments"));
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
@@ -216,7 +221,6 @@ public class DataServlet extends HttpServlet {
 
         String cursorString = results.getCursor().toWebSafeString();
         PageInfo data;
-        //checks if on last page or first page
         if (pageNumber == 1 && lastPage) {
             data = new PageInfo(comments, null, null, pageNumber);
         }
@@ -227,9 +231,9 @@ public class DataServlet extends HttpServlet {
         } else {
             data = new PageInfo(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
         }
-        Gson gson = new Gson();
+        Gson gsonHelper = new Gson();
         response.setContentType("application/json;");
-        response.getWriter().println(gson.toJson(data));
+        response.getWriter().println(gsonHelper.toJson(data));
     }
 }
 

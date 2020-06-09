@@ -64,15 +64,14 @@ public class DeleteCommentServlet extends HttpServlet {
         return null;
     }
 
-    UrlFetchTransport transport = new UrlFetchTransport();
-    GsonFactory gson = new GsonFactory();
-
-    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-        .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-        .build();
-
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        UrlFetchTransport transport = new UrlFetchTransport();
+        GsonFactory gson = new GsonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
+            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
+            .build();
+        
         String commentId = request.getParameter("commentId");
         //checks if profile is verified and then initializes the current profile id;
         String currentProfile = null;
