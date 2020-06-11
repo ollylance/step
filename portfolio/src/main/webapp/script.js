@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-function resizeOverlay(){
+function resizeOverlay() {
     const background = document.getElementById("background-clicked");
     const img = document.getElementById("enlarged-clicked");
     img.style.maxHeight = (window.innerHeight * .75) + "px";
@@ -24,7 +24,7 @@ function resizeOverlay(){
 
 //sets attributes for image and background overlay to display
 //when image is clicked; then monitors for next event
-function openImg(elem){
+function openImg(elem) {
     imgURL = elem.src;
     const background = document.getElementById("background-overlay");
     background.removeAttribute("id");
@@ -49,7 +49,7 @@ function openImg(elem){
 
     //detects when the background is clicked next to close 
     //the image and background overlay
-    background.addEventListener('click', function(){
+    background.addEventListener('click', function() {
         background.removeAttribute("id");
         img.removeAttribute("id");
         background.setAttribute("id", "background-overlay");
@@ -77,11 +77,113 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
-async function getComments(){
-    const resp = await fetch('/data');
-    var comments = await resp.json();
-    const responses = document.getElementById('comment-content');
-    for(i = 0; i < comments.length; i++){
-        responses.innerHTML += comments[i] + "<br>"
+function addElem(container, type, content) {
+    const newElem = document.createElement(type);
+    newElem.innerText = content;
+    container.appendChild(newElem);
+}
+
+function createNewComment(commentData) {
+    var name = commentData.name;
+    var stars = commentData.stars;
+    var comment = commentData.comment;
+    
+    const commentContainer = document.createElement('div');
+    commentContainer.classList.add("comment-container");
+    addElem(commentContainer, "h3", name);
+    addElem(commentContainer, "h4", stars+"/5");
+    addElem(commentContainer, "p", comment);
+    return commentContainer;
+}
+
+function setClasses(pages, tablePage, notNull) {
+    if (notNull) {
+        if (pages[0].classList.contains("page-link")) pages[0].classList.remove("page-link");
+        if (pages[1].classList.contains("page-link")) pages[1].classList.remove("page-link");
+        if (!pages[0].classList.contains("no-page")) pages[0].classList.add("no-page");
+        if (!pages[1].classList.contains("no-page")) pages[1].classList.add("no-page");
+        if (!tablePage.classList.contains("no-page-table")) tablePage.classList.add("no-page-table");
+    } else {
+        if (!pages[0].classList.contains("page-link")) pages[0].classList.add("page-link");
+        if (!pages[1].classList.contains("page-link")) pages[1].classList.add("page-link");
+        if (pages[0].classList.contains("no-page")) pages[0].classList.remove("no-page");
+        if (pages[1].classList.contains("no-page")) pages[1].classList.remove("no-page");
+        if (tablePage.classList.contains("no-page-table")) tablePage.classList.remove("no-page-table");
     }
 }
+
+//sets links and changes css with classes
+function loadPageNavigation(pLink, nLink, pageNumber) {
+    var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false", "'+ pageNumber +'")';
+    var nextLink = 'javascript:getComments("' + nLink +'", "1", "false", "'+ pageNumber +'")';
+    var prevPages = document.getElementsByClassName('prev-page');
+    var nextPages = document.getElementsByClassName('next-page');
+    const prevPageTable = document.getElementById('prev-page-div');
+    const currPageTable = document.getElementById('curr-page-div');
+    const nextPageTable = document.getElementById('next-page-div');
+    if (pLink != null) {
+        prevPages[0].href = prevLink;
+        prevPages[1].href = prevLink;
+        prevPageTable.innerText = pageNumber-1;
+        setClasses(prevPages, prevPageTable, false);
+    } else {
+        prevPages[0].href = "";
+        prevPages[1].href = "";
+        prevPageTable.innerText = "";
+        setClasses(prevPages, prevPageTable, true);
+    }
+    
+    currPageTable.innerText = pageNumber;
+
+    if (nLink != null) {
+        nextPages[0].href = nextLink;
+        nextPages[1].href = nextLink;
+        nextPageTable.innerText = pageNumber+1;
+        setClasses(nextPages, nextPageTable, false);
+    } else {
+        nextPages[0].href = "";
+        nextPages[1].href = "";
+        nextPageTable.innerText = "";
+        setClasses(nextPages, nextPageTable, true);
+    }
+}
+
+function loadHTML(commentData) {
+    const responses = document.getElementById('comment-content');
+    responses.innerHTML = "";
+    var comments = commentData.comments;
+    for (i = 0; i < comments.length; i++) {
+        responses.appendChild(createNewComment(comments[i]));
+    }
+    loadPageNavigation(commentData.prevLink, commentData.nextLink, commentData.pageNumber);
+}
+
+
+//gets comments data and then adds two links to 
+//link to the previous page and next page  
+async function getComments(cursor, dir, reload, pageNum) {
+    var sort = document.getElementById("sort").value;
+    var numComments = document.getElementById("numComments").value;
+    var auth2 = gapi.auth2.getAuthInstance();
+    var id = auth2.currentUser.get().getId();
+    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
+    var commentData = await resp.json();
+    loadHTML(commentData);
+}
+
+
+async function onSignIn(googleUser) {
+    // The ID token you need to pass to your backend:
+    gapi.load('auth2', function() {
+        var auth2 = gapi.auth2.init();
+    });
+    var id_token = googleUser.getAuthResponse().id_token;
+    const res = await fetch('/tokensignin?token_id='+id_token, {method:'POST'});
+}
+
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }

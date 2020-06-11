@@ -73,7 +73,7 @@ header h1{
     display: inline-block;
 }
 
-table{
+.info-table table{
     border-collapse: collapse;
     width: 100%;
     text-align: left;
@@ -82,7 +82,7 @@ table{
     font-size: max(.7em, .7vw);
 }
 
-th, td{
+.infotable th, .infotable td{
     border: 2px solid #8EA4D2;
     padding: 10px;
 }
@@ -113,6 +113,72 @@ iframe{
     margin-left: 2%;
 }
 
+#add-comment{
+    width: 60%;
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.8em, .9vw);
+    line-height: 1.4em;
+    letter-spacing: 1px;
+}
+
+textarea{
+    border: 2px solid #8EA4D2;
+    border-radius: 10px;
+    border-collapse: separate;
+    padding: 10px;
+    resize: none;
+    width: 40%;
+    min-width: 150px;
+}
+
+#comment-content{
+    width: 100%;
+    display: grid;
+}
+
+.comment-container{
+    width: 40%;
+    display: inline-block;
+    border: 2px solid black;
+    border-radius: 10px;
+    text-align: left;
+    padding: 10px 30px;
+    margin: 10px auto;
+}
+
+.comment-container h3{
+    font-family: 'Cormorant', serif;
+    font-weight: 600;
+    font-size: max(1em, 1vw);
+    border-bottom: 1px solid black;
+    float: left;
+    width: 60%;
+    color: #8EA4D2;
+}
+
+.comment-container h4{
+    font-family: 'Cormorant', serif;
+    font-weight: 400;
+    float: right;
+    margin-right: 2%;
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: max(1em, 1vw);
+}
+
+.comment-container p{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.8em, .9vw);
+    line-height: 1.4em;
+    letter-spacing: 1px;
+    width: 100%;
+    float: left;
+    margin-top: 0;
+}
+
 #quote-container{
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
@@ -128,6 +194,57 @@ button{
     padding: 5px;
 }
 
+
+#page-navigation{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#pages{
+    display: flex;
+}
+
+a.page-link{
+    color: black;
+    text-decoration: none;
+}
+
+a.page-link:hover{
+    color: #b00;
+    text-decoration: none;
+}
+
+.page-nums{
+    border: 2px solid #8EA4D2;
+    border-radius: 5px;
+    margin: 0 5px;
+    width: max(17px, 1.3vw);
+    height: max(17px, 1.3vw);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: max(.7em, .7vw);
+}
+
+a.no-page{
+    color: gray;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+#current-page-link{
+    color: black;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+#curr-page-div{
+    background-color: lightgray;
+}
 
 #image-gallery{
     margin: 0 auto;

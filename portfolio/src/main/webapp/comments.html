@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="author" content="Oliver Lance"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="google-signin-client_id" content="653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com">
     <title>My Comments</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css"/>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="script.js"></script>
   </head>
-  <body onload="getComments()">
+  <body onload="getComments('', '0', 'true', '1')">
     <div id="content">
         <header>
             <h1>Oliver</h1>
@@ -22,13 +25,47 @@
             <a href="comments.html" class="selected">Comments</a>
         </nav>
         <hr/>
-        <div id="comment-content"></div>
-        <form action="/data" method="POST">
+        <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+        <div onClick="signOut()">Sign Out</div>
+        <form id="add-comment" action="/data" method="POST">
             <p>Enter a comment:</p>
-            <textarea name="comment-input"></textarea>
+            <textarea id="name" name="name" rows="1" cols="50" max-length="60" 
+                placeholder="Name" required></textarea><br/>
+            <textarea id="comment-area" name="comment-input" rows="4" 
+                cols="50" placeholder="Comment" max-length="1000" required></textarea><br/>
+            <label for="stars" required>Stars (out of 5):</label>
+            <input type="number" id="stars" name="stars" min="1" max="5" required/>
+            <br/>
+            <br/>
             <input type="submit" />
         </form>
         <hr/>
+        <form onchange="getComments('', '0', 'true', '1')" id="sort-results">
+            <select id="sort" name="sort">
+                <option value="new" selected>Newest</option>
+                <option value="old">Oldest</option>
+                <option value="high">Highest Rating</option>
+                <option value="low">Lowest Rating</option>
+            </select>
+            <select id="numComments" name="numComents">
+                <option value="4" selected>4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+            </select>
+        </form>
+        <div id="comment-content"></div>
+        <div id="page-navigation">
+            <a class="prev-page" class="page-link" href="/">Prev Page</a>
+            <div id="pages">
+                <a class="prev-page" href="/"><div class="page-nums" id="prev-page-div"></div></a>
+                <a id="current-page-link" href="/"><div class="page-nums" id="curr-page-div"></div></a>
+                <a class="next-page" href="/"><div class="page-nums" id="next-page-div"></div></a>
+            </div>
+            <a class="next-page" class="page-link" href="/">Next Page</a>
+        </div>
+       <hr/>
+        
         <footer>
             <p>Oliver Lance <br/> 717-553-3107 &middot <a href="mailto:ollylance@google.com" target="_blank">ollylance@google.com</a>
             <br/> <a href="https://www.linkedin.com/in/oliverplance/" target="_blank">LinkedIn</a> &middot 
