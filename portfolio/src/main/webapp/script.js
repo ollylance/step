@@ -125,7 +125,7 @@ function setClasses(pages, tablePage, notNull) {
 }
 
 //sets links and changes css with classes
-function loadPageNavigation(pLink, nLink, pageNumber){
+function loadPageNavigation(pLink, nLink, pageNumber) {
     var prevLink = 'javascript:getComments("' + pLink +'", "-1", "false", "'+ pageNumber +'")';
     var nextLink = 'javascript:getComments("' + nLink +'", "1", "false", "'+ pageNumber +'")';
     var prevPages = document.getElementsByClassName('prev-page');
@@ -160,7 +160,7 @@ function loadPageNavigation(pLink, nLink, pageNumber){
     }
 }
 
-function loadHTML (commentData) {
+function loadHTML(commentData) {
     const responses = document.getElementById('comment-content');
     responses.innerHTML = "";
     var comments = commentData.comments;

@@ -38,7 +38,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
-/** Servlet that makes a validates id token and stores data in database.**/
+/** Servlet that makes a validated id token and stores data in database.**/
 // referenced from https://developers.google.com/identity/sign-in/web/backend-auth
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {

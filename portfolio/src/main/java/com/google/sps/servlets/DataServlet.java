@@ -62,7 +62,7 @@ public class DataServlet extends HttpServlet {
         Query query = getQueryType(sort);
         PreparedQuery res = datastore.prepare(query);
         results = res.asQueryResultList(fetchOptions);
-        if(results.size() == 0) {
+        if (results.size() == 0) {
             return true;
         }
         return false;
@@ -77,13 +77,14 @@ public class DataServlet extends HttpServlet {
             case "old": 
                         query = new Query("Comment").addSort("timestamp", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
-            case "high": 
+            case "high":
                         query = new Query("Comment").addSort("stars", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
             case "low": 
                         query = new Query("Comment").addSort("stars", SortDirection.ASCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
                         break;
-            default: query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
+            default: 
+                        query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING).addSort(Entity.KEY_RESERVED_PROPERTY);
         }
         return query;
     }
@@ -190,7 +191,7 @@ public class DataServlet extends HttpServlet {
             //checks if this is the last page
             if (results.size() == numComments) {
                 lastPage = lastPage(results, sort);
-            } else if (results.size() < numComments){
+            } else if (results.size() < numComments) {
                 lastPage = true;
             }
         } catch (IllegalArgumentException e) {
@@ -221,6 +222,7 @@ public class DataServlet extends HttpServlet {
 
         String cursorString = results.getCursor().toWebSafeString();
         PageInfo data;
+        //checks if on last page or first page
         if (pageNumber == 1 && lastPage) {
             data = new PageInfo(comments, null, null, pageNumber);
         }
