@@ -106,7 +106,7 @@ header h1{
     display: inline-block;
 }
 
-.info-table table{
+.info-table{
     border-collapse: collapse;
     width: 100%;
     text-align: left;
@@ -115,9 +115,10 @@ header h1{
     font-size: max(.7em, .7vw);
 }
 
-.infotable th, .infotable td{
+.info-table th, .info-table td{
     border: 2px solid #8EA4D2;
     padding: 10px;
+    border-collapse: collapse;
 }
 
 #greeting-container {
@@ -159,7 +160,7 @@ iframe{
 textarea{
     border: 2px solid #8EA4D2;
     border-radius: 10px;
-    border-collapse: separate;
+    border-collapse: collapse;
     padding: 10px;
     resize: none;
     width: 40%;
@@ -169,6 +170,10 @@ textarea{
 #comment-content{
     width: 100%;
     display: grid;
+}
+
+#stars{
+    margin-bottom: 15px;
 }
 
 .comment-container{

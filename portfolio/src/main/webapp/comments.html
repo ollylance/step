@@ -5,7 +5,11 @@
     <meta name="author" content="Oliver Lance"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="google-signin-client_id" content="653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com">
-    <title>My Comments</title>
+    <title>Comments | Oliver Lance's Portfolio</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css"/>
@@ -24,7 +28,6 @@
             <img id="user-profile-img" class="hide" src="" alt="user profile picture"></img>
             <div id="signout" class="hide" onClick="signOut()"><p>Sign Out</p></div>
             <div id="google-signin" class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
-            
         </div>
         <nav>
             <a href="index.html">Home</a>
@@ -40,9 +43,9 @@
                 cols="50" placeholder="Comment" max-length="1000" required></textarea><br/>
             <label for="stars" required>Stars (out of 5):</label>
             <input type="number" id="stars" name="stars" min="1" max="5" required/>
-            <br/>
-            <br/>
+            <br>
             <input type="submit" />
+           
         </form>
         <hr/>
         <form onchange="getComments('', '0', 'true', '1')" id="sort-results">

@@ -32,8 +32,9 @@ function openImg(elem) {
     background.style.height = window.innerHeight + "px";
     background.style.top = window.pageYOffset + "px";
 
-    img.src = imgURL;
+    
     const img = document.getElementById("enlarged-img"); 
+    img.src = imgURL;
     img.alt = "enlarged gallery image";
     img.removeAttribute("id");
     img.setAttribute("id", "enlarged-clicked");
@@ -52,6 +53,7 @@ function openImg(elem) {
     background.addEventListener('click', function() {
         background.removeAttribute("id");
         img.removeAttribute("id");
+        img.src = "";
         background.setAttribute("id", "background-overlay");
         img.setAttribute("id", "enlarged-img");
     
