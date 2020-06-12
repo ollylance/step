@@ -28,18 +28,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.sps.data.Comment;
+import com.google.sps.data.IdentityProvider;
 import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.json.gson.GsonFactory;
 
 /** Servlet that makes a new comment from form and puts it into Datastore.**/
 @WebServlet("/data")
@@ -91,11 +87,6 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        UrlFetchTransport transport = new UrlFetchTransport();
-        GsonFactory gson = new GsonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-            .build();
 
         String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
@@ -103,41 +94,28 @@ public class DataServlet extends HttpServlet {
         long timestamp = System.currentTimeMillis();
 
         //checks if profile is verified and then initializes the current profile id;
-        String personId = null;
-        String personIdToken = request.getParameter("personIdToken");
-        if (!personIdToken.equals("")) {
-            GoogleIdToken idToken = GoogleIdToken.parse(gson, personIdToken);
-            try {
-                if (verifier.verify(idToken)) {
-                    Payload payload = idToken.getPayload();
-                    personId = payload.getSubject();
-                }
-            } catch (Exception e) {
-                System.err.println("Token not verified:" + e);
-            }
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
+        
+        if(identity.getTokenVerified()){
+            Entity commentEntity = new Entity("Comment");
+            commentEntity.setProperty("personId", identity.getPayload().getSubject());
+            commentEntity.setProperty("name", name);
+            commentEntity.setProperty("comment", comment);
+            commentEntity.setProperty("stars", stars);
+            commentEntity.setProperty("timestamp", timestamp);
+
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(commentEntity);
+            response.sendRedirect("/comments.html");
+        } else{
+            getServletContext().log("Token not verified");
         }
-
-        Entity commentEntity = new Entity("Comment");
-        commentEntity.setProperty("personId", personId);
-        commentEntity.setProperty("name", name);
-        commentEntity.setProperty("comment", comment);
-        commentEntity.setProperty("stars", stars);
-        commentEntity.setProperty("timestamp", timestamp);
-
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(commentEntity);
-        response.sendRedirect("/comments.html");
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //some cursor knowledge based on/used from https://cloud.google.com/appengine/docs/standard/java/datastore/query-cursors
-        UrlFetchTransport transport = new UrlFetchTransport();
-        GsonFactory gson = new GsonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-            .build();
-
         int numComments = Integer.parseInt(request.getParameter("numComments"));
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
@@ -149,19 +127,8 @@ public class DataServlet extends HttpServlet {
         boolean lastPage = false;
 
         //checks if profile is verified and then initializes the current profile id;
-        String currentProfile = null;
-        String currentProfileToken = request.getParameter("currentProfileToken");
-        if (!currentProfileToken.equals("")) {
-            GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
-            try {
-                if (verifier.verify(idToken)) {
-                    Payload payload = idToken.getPayload();
-                    currentProfile = payload.getSubject();
-                }
-            } catch (Exception e) {
-                System.err.println("Token not verified:" + e);
-            }
-        }
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
 
         if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
@@ -200,6 +167,7 @@ public class DataServlet extends HttpServlet {
             // may have been an internal implementation detail change in App Engine.
             // Redirect to the page without the cursor parameter to show something
             // rather than an error.
+            getServletContext().log(e, "invalid cursor is used");
             response.sendRedirect("/comments.html");
             return;
         }
@@ -209,7 +177,7 @@ public class DataServlet extends HttpServlet {
             long commentId = entity.getKey().getId();
             String personId = (String)entity.getProperty("personId");
             boolean showTrash = false;
-            if (personId.equals(currentProfile)) {
+            if (identity.getTokenVerified() && personId.equals(identity.getPayload().getSubject())) {
                 showTrash = true;
             }
             String name = (String)entity.getProperty("name");

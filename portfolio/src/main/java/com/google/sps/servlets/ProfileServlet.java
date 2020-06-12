@@ -24,6 +24,7 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Key;
 import com.google.gson.Gson;
+import com.google.sps.data.IdentityProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +32,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.json.gson.GsonFactory;
 
 /** Servlet that makes a validated id token and stores data in database.**/
 // referenced from https://developers.google.com/identity/sign-in/web/backend-auth
@@ -53,6 +49,7 @@ public class ProfileServlet extends HttpServlet {
         try {
             results = res.asQueryResultList(fetchOptions);
         } catch (IllegalArgumentException e) {
+            getServletContext().log(e, "Unable to retrieve query when getting profile");
             return null;
         }
         for (Entity entity : results) {
@@ -63,75 +60,56 @@ public class ProfileServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        UrlFetchTransport transport = new UrlFetchTransport();
-        GsonFactory gson = new GsonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-            .build();
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
+       
+        //if the specific id is not already in the database
+        Payload payload = identity.getPayload();
+        if(identity.getTokenVerified()){
+            if (getProfile(payload.getSubject()) == null) {
+                Entity profileEntity = new Entity("Profile");
+                profileEntity.setProperty("id", payload.getSubject());
+                profileEntity.setProperty("fname", (String) payload.get("given_name"));
+                profileEntity.setProperty("lname", (String) payload.get("family_name"));
+                profileEntity.setProperty("email", (String) payload.getEmail());
+                profileEntity.setProperty("emailVerfied", Boolean.valueOf(payload.getEmailVerified()));
+                profileEntity.setProperty("picUrl", (String) payload.get("picture"));
 
-        String tokenString = request.getParameter("token_id");
-        GoogleIdToken idToken = GoogleIdToken.parse(gson, tokenString);
-        try {
-            if (verifier.verify(idToken)) {
-                Payload payload = idToken.getPayload();
-                //if the specific id is not already in the database
-                if (getProfile(payload.getSubject()) == null) {
-                    Entity profileEntity = new Entity("Profile");
-                    profileEntity.setProperty("id", payload.getSubject());
-                    profileEntity.setProperty("fname", (String) payload.get("given_name"));
-                    profileEntity.setProperty("lname", (String) payload.get("family_name"));
-                    profileEntity.setProperty("email", (String) payload.getEmail());
-                    profileEntity.setProperty("emailVerfied", Boolean.valueOf(payload.getEmailVerified()));
-                    profileEntity.setProperty("picUrl", (String) payload.get("picture"));
-
-                    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                    datastore.put(profileEntity);
-                }
+                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+                datastore.put(profileEntity);
             }
-        } catch (Exception e) {
-            System.err.println("Token not verified:" + e);
+        } else{
+            getServletContext().log("Token not verified");
         }
         response.sendRedirect("/comments.html");
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        UrlFetchTransport transport = new UrlFetchTransport();
-        GsonFactory gson = new GsonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-            .build();
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
+        
+        if(identity.getTokenVerified()){
+            //if the specific id is not already in the database
+            Entity profile = getProfile(identity.getPayload().getSubject());
+            if (profile != null) {
+                ArrayList<String> profileData = new ArrayList<String>();
+                String picUrl = (String) profile.getProperty("picUrl");
+                profileData.add(picUrl);
+                String fname = (String) profile.getProperty("fname");
+                profileData.add(fname);
+                String lname = (String) profile.getProperty("lname");
+                profileData.add(lname);
 
-        String currentProfile = null;
-        String currentProfileToken = request.getParameter("currentProfileToken");
-        if (!currentProfileToken.equals("")) {
-            GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
-            try {
-                if (verifier.verify(idToken)) {
-                    Payload payload = idToken.getPayload();
-                    //if the specific id is not already in the database
-                    Entity profile = getProfile(payload.getSubject());
-                    if (profile != null) {
-                        ArrayList<String> profileData = new ArrayList<String>();
-                        String picUrl = (String) profile.getProperty("picUrl");
-                        profileData.add(picUrl);
-                        String fname = (String) profile.getProperty("fname");
-                        profileData.add(fname);
-                        String lname = (String) profile.getProperty("lname");
-                        profileData.add(lname);
-
-                        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                        Gson gsonHelper = new Gson();
-                        response.setContentType("application/json;");
-                        response.getWriter().println(gsonHelper.toJson(profileData));
-                        return;
-                    }
-                    response.sendRedirect("/comments.html");
-                }
-            } catch (Exception e) {
-                System.err.println("Token not verified:" + e);
-                response.sendRedirect("/comments.html");
-            }
+                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+                Gson gsonHelper = new Gson();
+                response.setContentType("application/json;");
+                response.getWriter().println(gsonHelper.toJson(profileData));
+                return;
+            } else response.sendRedirect("/comments.html");
+        } else{
+            getServletContext().log("Token not verified");
+            response.sendRedirect("/comments.html");
         }
     }
 }

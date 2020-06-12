@@ -18,7 +18,6 @@ import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
@@ -30,17 +29,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import com.google.sps.data.Comment;
 import com.google.sps.data.PageInfo;
+import com.google.sps.data.IdentityProvider;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.json.gson.GsonFactory;
 
 /** Servlet that makes a new comment from form and puts it into Datastore.**/
 @WebServlet("/delete-comment")
@@ -55,6 +50,7 @@ public class DeleteCommentServlet extends HttpServlet {
         try {
             results = res.asQueryResultList(fetchOptions);
         } catch (IllegalArgumentException e) {
+            getServletContext().log(e, "Unable to retrieve query when deleting entry");
             return null;
         }
         for (Entity entity : results) {
@@ -66,33 +62,18 @@ public class DeleteCommentServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        UrlFetchTransport transport = new UrlFetchTransport();
-        GsonFactory gson = new GsonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
-            .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
-            .build();
-        
         String commentId = request.getParameter("commentId");
         //checks if profile is verified and then initializes the current profile id;
-        String currentProfile = null;
-        String currentProfileToken = request.getParameter("currentProfileToken");
-        if (!currentProfileToken.equals("")) {
-            GoogleIdToken idToken = GoogleIdToken.parse(gson, currentProfileToken);
-            try {
-                if (verifier.verify(idToken)) {
-                    Payload payload = idToken.getPayload();
-                    currentProfile = payload.getSubject();
-                }
-            } catch (Exception e) {
-                System.err.println("Token not verified:" + e);
-            }
-        }
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
+        
         Entity comment = getEntry("id", commentId);
-        if (comment.getProperty("personId").equals(currentProfile)) {
+        if (identity.getTokenVerified() && comment.getProperty("personId").equals(identity.getPayload().getSubject())) {
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             datastore.delete(comment.getKey());
         }
         response.sendRedirect("/comments.html");
-  }
+    }
 }
+
 

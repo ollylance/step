@@ -176,9 +176,9 @@ async function getComments(cursor, dir, reload, pageNum) {
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
     var auth2 = gapi.auth2.getAuthInstance();
-    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if (currentProfileToken == undefined) currentProfileToken = "";
-    const resp = await fetch('/data?currentProfileToken='+currentProfileToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) stringToken = "";
+    const resp = await fetch('/data?stringToken='+stringToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
@@ -186,14 +186,14 @@ async function getComments(cursor, dir, reload, pageNum) {
 //appends the user id to the comment
 async function addComment() {
     var auth2 = gapi.auth2.getAuthInstance();
-    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if (currentProfileToken == undefined) {
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) {
         alert("You need to be signed in to submit a comment");
         return;
     }
     var form = document.getElementById("add-comment");
     var formData = new FormData(form);
-    formData.append("personIdToken", currentProfileToken);
+    formData.append("stringToken", stringToken);
     const params = new URLSearchParams();
     for (const pair of formData) {
         params.append(pair[0], pair[1]);
@@ -203,12 +203,12 @@ async function addComment() {
 
 async function deleteComment(commentId) {
     var auth2 = gapi.auth2.getAuthInstance();
-    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if(currentProfileToken == undefined) {
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if(stringToken == undefined) {
         alert("You need to be signed in to delete a comment");
         return;
     }
-    const res = await fetch('/delete-comment?currentProfileToken='+currentProfileToken+'&commentId='+commentId, {method:'POST'});
+    const res = await fetch('/delete-comment?stringToken='+stringToken+'&commentId='+commentId, {method:'POST'});
     await getComments("", 0, true, "1");
 }
 
@@ -227,9 +227,9 @@ function loadProfileHTML(profileData){
 
 async function getProfileInfo(){
     var auth2 = gapi.auth2.getAuthInstance();
-    var currentProfileToken = auth2.currentUser.get().getAuthResponse().id_token;
-    if (currentProfileToken == undefined) currentProfileToken = "";
-    const resp = await fetch('/profile?currentProfileToken='+currentProfileToken);
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) stringToken = "";
+    const resp = await fetch('/profile?stringToken='+stringToken);
     var profileData = await resp.json();
     loadProfileHTML(profileData);
 }
@@ -252,8 +252,8 @@ function onSignIn(googleUser) {
     gapi.load('auth2', function() {
         var auth2 = gapi.auth2.init();
         auth2.currentUser.get().getId();
-        var id_token = googleUser.getAuthResponse().id_token;
-        const res = fetch('/profile?token_id='+id_token, {method:'POST'});
+        var stringToken = googleUser.getAuthResponse().id_token;
+        const res = fetch('/profile?stringToken='+stringToken, {method:'POST'});
         getComments("", 0, false, "1");
         getProfileInfo();
         return;
