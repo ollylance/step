@@ -1,6 +1,6 @@
 #content {
-  width: 100%;
-  text-align: center;
+    width: 100%;
+    text-align: center;
 }
 
 header{
@@ -9,6 +9,39 @@ header{
     justify-content: center;
     align-items: center;
     margin-top: 20px;
+}
+
+#profile{
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    text-align: center;
+}
+
+#profile p{
+    font-family: 'Cormorant', serif;
+    font-weight: 700;
+    font-size: max(1em, 1vw);
+    margin: auto 10px;
+}
+
+#profile img{
+    border-radius: 50%;
+    width: max(15%, 30px);
+    margin: auto 0;
+}
+
+.hide{
+    display: none;
+}
+
+#signout{
+    cursor: pointer;
+    font-weight: 400;
+}
+
+#signout:hover{
+    color: #b00;
 }
 
 nav{
@@ -73,7 +106,7 @@ header h1{
     display: inline-block;
 }
 
-.info-table table{
+.info-table{
     border-collapse: collapse;
     width: 100%;
     text-align: left;
@@ -82,9 +115,10 @@ header h1{
     font-size: max(.7em, .7vw);
 }
 
-.infotable th, .infotable td{
+.info-table th, .info-table td{
     border: 2px solid #8EA4D2;
     padding: 10px;
+    border-collapse: collapse;
 }
 
 #greeting-container {
@@ -126,7 +160,7 @@ iframe{
 textarea{
     border: 2px solid #8EA4D2;
     border-radius: 10px;
-    border-collapse: separate;
+    border-collapse: collapse;
     padding: 10px;
     resize: none;
     width: 40%;
@@ -136,6 +170,10 @@ textarea{
 #comment-content{
     width: 100%;
     display: grid;
+}
+
+#stars{
+    margin-bottom: 15px;
 }
 
 .comment-container{
@@ -177,6 +215,16 @@ textarea{
     width: 100%;
     float: left;
     margin-top: 0;
+}
+
+#delete-comment{
+    float: right;
+    cursor: pointer;
+}
+
+#delete-comment:hover{
+    color: #b00;
+    text-decoration: none;
 }
 
 #quote-container{

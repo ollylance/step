@@ -1,0 +1,27 @@
+indexes:
+
+- kind: Comment
+  properties:
+  - name: timestamp
+  - name: __key__
+    direction: desc
+
+- kind: Comment
+  properties:
+  - name: timestamp
+    direction: desc
+  - name: __key__
+    direction: desc
+
+- kind: Comment
+  properties:
+  - name: stars
+  - name: __key__
+    direction: desc
+
+- kind: Comment
+  properties:
+  - name: stars
+    direction: desc
+  - name: __key__
+    direction: desc

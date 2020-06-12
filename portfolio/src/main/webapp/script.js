@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ function openImg(elem) {
     background.style.height = window.innerHeight + "px";
     background.style.top = window.pageYOffset + "px";
 
+    
     const img = document.getElementById("enlarged-img"); 
     img.src = imgURL;
     img.alt = "enlarged gallery image";
@@ -52,6 +53,7 @@ function openImg(elem) {
     background.addEventListener('click', function() {
         background.removeAttribute("id");
         img.removeAttribute("id");
+        img.src = "";
         background.setAttribute("id", "background-overlay");
         img.setAttribute("id", "enlarged-img");
     
@@ -77,9 +79,15 @@ function addRandomQuote() {
   quoteContainer.innerText = quote;
 }
 
-function addElem(container, type, content) {
+function addElem(container, type, content, id) {
     const newElem = document.createElement(type);
     newElem.innerText = content;
+    if (type == "div") {
+        newElem.id = "delete-comment";
+        newElem.addEventListener("click", function() {
+            deleteComment(id);
+        });
+    }
     container.appendChild(newElem);
 }
 
@@ -87,12 +95,16 @@ function createNewComment(commentData) {
     var name = commentData.name;
     var stars = commentData.stars;
     var comment = commentData.comment;
-    
+
     const commentContainer = document.createElement('div');
     commentContainer.classList.add("comment-container");
     addElem(commentContainer, "h3", name);
     addElem(commentContainer, "h4", stars+"/5");
     addElem(commentContainer, "p", comment);
+
+    if (commentData.showTrash) {
+        addElem(commentContainer, "div", "Delete", commentData.id);
+    }
     return commentContainer;
 }
 
@@ -158,32 +170,101 @@ function loadHTML(commentData) {
     loadPageNavigation(commentData.prevLink, commentData.nextLink, commentData.pageNumber);
 }
 
-
 //gets comments data and then adds two links to 
 //link to the previous page and next page  
 async function getComments(cursor, dir, reload, pageNum) {
     var sort = document.getElementById("sort").value;
     var numComments = document.getElementById("numComments").value;
     var auth2 = gapi.auth2.getAuthInstance();
-    var id = auth2.currentUser.get().getId();
-    const resp = await fetch('/data?id='+id+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) stringToken = "";
+    const resp = await fetch('/data?stringToken='+stringToken+'&reload='+reload+'&numComments='+numComments+'&sort='+sort+'&dir='+dir+'&pageNumber='+pageNum+cursor);
     var commentData = await resp.json();
     loadHTML(commentData);
 }
 
+//appends the user id to the comment
+async function addComment() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) {
+        alert("You need to be signed in to submit a comment");
+        return;
+    }
+    var form = document.getElementById("add-comment");
+    var formData = new FormData(form);
+    formData.append("stringToken", stringToken);
+    const params = new URLSearchParams();
+    for (const pair of formData) {
+        params.append(pair[0], pair[1]);
+    }
+    const res = await fetch('/data?'+params.toString(), {method:'POST'});
+}
 
-async function onSignIn(googleUser) {
+async function deleteComment(commentId) {
+    var auth2 = gapi.auth2.getAuthInstance();
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if(stringToken == undefined) {
+        alert("You need to be signed in to delete a comment");
+        return;
+    }
+    const res = await fetch('/delete-comment?stringToken='+stringToken+'&commentId='+commentId, {method:'POST'});
+    await getComments("", 0, true, "1");
+}
+
+function loadProfileHTML(profileData){
+    const profileImg = document.getElementById('user-profile-img');
+    const userName = document.getElementById('user-name');
+    const google = document.getElementById('google-signin');
+    const signout = document.getElementById('signout');
+    profileImg.src = profileData[0];
+    if (profileImg.classList.contains("hide")) profileImg.classList.remove("hide");
+    userName.innerText = profileData[1] + ' ' + profileData[2];
+    if (userName.classList.contains("hide")) userName.classList.remove("hide");
+    if (!google.classList.contains("hide")) google.classList.add("hide");
+    if (signout.classList.contains("hide")) signout.classList.remove("hide");
+}
+
+async function getProfileInfo(){
+    var auth2 = gapi.auth2.getAuthInstance();
+    var stringToken = auth2.currentUser.get().getAuthResponse().id_token;
+    if (stringToken == undefined) stringToken = "";
+    const resp = await fetch('/profile?stringToken='+stringToken);
+    var profileData = await resp.json();
+    loadProfileHTML(profileData);
+}
+
+function hideProfileInfo(){
+    const signout = document.getElementById('signout');
+    const profileImg = document.getElementById('user-profile-img');
+    const userName = document.getElementById('user-name');
+    const google = document.getElementById('google-signin');
+    profileImg.src = "";
+    if (!profileImg.classList.contains("hide")) profileImg.classList.add("hide");
+    userName.innerText = "";
+    if (!userName.classList.contains("hide")) userName.classList.add("hide");
+    if (google.classList.contains("hide")) google.classList.remove("hide");
+    if (!signout.classList.contains("hide")) signout.classList.add("hide");
+}
+
+function onSignIn(googleUser) {
     // The ID token you need to pass to your backend:
     gapi.load('auth2', function() {
         var auth2 = gapi.auth2.init();
+        auth2.currentUser.get().getId();
+        var stringToken = googleUser.getAuthResponse().id_token;
+        const res = fetch('/profile?stringToken='+stringToken, {method:'POST'});
+        getComments("", 0, false, "1");
+        getProfileInfo();
+        return;
     });
-    var id_token = googleUser.getAuthResponse().id_token;
-    const res = await fetch('/tokensignin?token_id='+id_token, {method:'POST'});
+    return;
 }
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
-      console.log('User signed out.');
+        getComments("", 0, true, "1");
+        hideProfileInfo();
     });
-  }
+}

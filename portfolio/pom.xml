@@ -46,7 +46,6 @@
         <groupId>com.google.api-client</groupId>
         <artifactId>google-api-client-gson</artifactId>
         <version>1.19.0</version>
-        
     </dependency>
 
     <dependency>
@@ -67,6 +66,9 @@
         <configuration>
           <deploy.projectId>ollylance-step-2020</deploy.projectId>
           <deploy.version>1</deploy.version>
+          <enableJarClasses>false</enableJarClasses>
+          <port>8181</port>
+          <address>0.0.0.0</address>
         </configuration>
       </plugin>
     </plugins>

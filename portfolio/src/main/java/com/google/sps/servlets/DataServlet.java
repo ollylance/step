@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,15 +26,16 @@ import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Key;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import com.google.sps.data.Comment;
+import com.google.sps.data.IdentityProvider;
 import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 
 /** Servlet that makes a new comment from form and puts it into Datastore.**/
 @WebServlet("/data")
@@ -43,13 +44,13 @@ public class DataServlet extends HttpServlet {
     private int addPageNumber(int dir, int pageNumber) {
         if (dir > 0) {
             pageNumber += 1;
-        } else if(dir < 0) {
+        } else if (dir < 0) {
             pageNumber -= 1;
         }
         return pageNumber;
     }
 
-    private Boolean lastPage(QueryResultList<Entity> results, String sort) {
+    private boolean lastPage(QueryResultList<Entity> results, String sort) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(1);
         Cursor startCursor = results.getCursor();
@@ -86,20 +87,30 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
         String stars = request.getParameter("stars");
         long timestamp = System.currentTimeMillis();
 
-        Entity commentEntity = new Entity("Comment");
-        commentEntity.setProperty("name", name);
-        commentEntity.setProperty("comment", comment);
-        commentEntity.setProperty("stars", stars);
-        commentEntity.setProperty("timestamp", timestamp);
+        //checks if profile is verified and then initializes the current profile id;
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
+        
+        if(identity.getTokenVerified()){
+            Entity commentEntity = new Entity("Comment");
+            commentEntity.setProperty("personId", identity.getPayload().getSubject());
+            commentEntity.setProperty("name", name);
+            commentEntity.setProperty("comment", comment);
+            commentEntity.setProperty("stars", stars);
+            commentEntity.setProperty("timestamp", timestamp);
 
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(commentEntity);
-        response.sendRedirect("/comments.html");
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(commentEntity);
+            response.sendRedirect("/comments.html");
+        } else{
+            getServletContext().log("Token not verified");
+        }
     }
 
     @Override
@@ -110,15 +121,21 @@ public class DataServlet extends HttpServlet {
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
         String startCursor = request.getParameter("cursor");
         int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-        Boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
+        boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
         int dir = Integer.parseInt(request.getParameter("dir"));
         String sort = request.getParameter("sort");
-        Boolean lastPage = false;
+        boolean lastPage = false;
+
+        //checks if profile is verified and then initializes the current profile id;
+        String stringToken = request.getParameter("stringToken");
+        IdentityProvider identity = new IdentityProvider(stringToken);
 
         if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
         } 
-        
+        if (reload) {
+            pageNumber = 1;
+        }
         pageNumber = addPageNumber(dir, pageNumber);
 
         Query query = getQueryType(sort);
@@ -150,19 +167,24 @@ public class DataServlet extends HttpServlet {
             // may have been an internal implementation detail change in App Engine.
             // Redirect to the page without the cursor parameter to show something
             // rather than an error.
+            getServletContext().log(e, "invalid cursor is used");
             response.sendRedirect("/comments.html");
             return;
         }
 
         ArrayList<Comment> comments = new ArrayList<Comment>();
         for (Entity entity : results) {
-            long id = entity.getKey().getId();
-            String name = (String) entity.getProperty("name");
-            String comment = (String) entity.getProperty("comment");
-            int stars = Integer.parseInt((String) entity.getProperty("stars"));
+            long commentId = entity.getKey().getId();
+            String personId = (String)entity.getProperty("personId");
+            boolean showTrash = false;
+            if (identity.getTokenVerified() && personId.equals(identity.getPayload().getSubject())) {
+                showTrash = true;
+            }
+            String name = (String)entity.getProperty("name");
+            String comment = (String)entity.getProperty("comment");
+            int stars = Integer.parseInt((String)entity.getProperty("stars"));
             long timestamp = (long) entity.getProperty("timestamp");
-
-            Comment newComment = new Comment(id, name, comment, stars, timestamp);
+            Comment newComment = new Comment(commentId, name, comment, stars, timestamp, showTrash);
             comments.add(newComment);
         }
 
@@ -179,8 +201,8 @@ public class DataServlet extends HttpServlet {
         } else {
             data = new PageInfo(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
         }
-        Gson gson = new Gson();
         response.setContentType("application/json;");
-        response.getWriter().println(gson.toJson(data));
+        response.getWriter().println(new Gson().toJson(data));
     }
 }
+
