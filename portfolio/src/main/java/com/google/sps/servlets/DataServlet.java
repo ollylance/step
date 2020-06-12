@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class DataServlet extends HttpServlet {
         return pageNumber;
     }
 
-    private Boolean lastPage(QueryResultList<Entity> results, String sort) {
+    private boolean lastPage(QueryResultList<Entity> results, String sort) {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(1);
         Cursor startCursor = results.getCursor();
@@ -143,10 +143,10 @@ public class DataServlet extends HttpServlet {
         FetchOptions fetchOptions = FetchOptions.Builder.withLimit(numComments);
         String startCursor = request.getParameter("cursor");
         int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-        Boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
+        boolean reload = Boolean.parseBoolean(request.getParameter("reload"));
         int dir = Integer.parseInt(request.getParameter("dir"));
         String sort = request.getParameter("sort");
-        Boolean lastPage = false;
+        boolean lastPage = false;
 
         //checks if profile is verified and then initializes the current profile id;
         String currentProfile = null;
@@ -208,7 +208,7 @@ public class DataServlet extends HttpServlet {
         for (Entity entity : results) {
             long commentId = entity.getKey().getId();
             String personId = (String)entity.getProperty("personId");
-            Boolean showTrash = false;
+            boolean showTrash = false;
             if (personId.equals(currentProfile)) {
                 showTrash = true;
             }
@@ -233,9 +233,8 @@ public class DataServlet extends HttpServlet {
         } else {
             data = new PageInfo(comments, "&cursor="+startCursor, "&cursor="+cursorString, pageNumber);
         }
-        Gson gsonHelper = new Gson();
         response.setContentType("application/json;");
-        response.getWriter().println(gsonHelper.toJson(data));
+        response.getWriter().println(new Gson().toJson(data));
     }
 }
 

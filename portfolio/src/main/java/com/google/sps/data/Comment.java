@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ public final class Comment {
   private final String comment;
   private final int stars;
   private final long timestamp;
-  private final Boolean showTrash;
+  private final boolean showTrash;
 
-  public Comment(long id, String name, String comment, int stars, long timestamp, Boolean showTrash) {
+  public Comment(long id, String name, String comment, int stars, long timestamp, boolean showTrash) {
         this.id = id;
         this.name = name;
         this.comment = comment;
