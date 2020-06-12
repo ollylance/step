@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 
-/** Servlet that makes a new comment from form and puts it into Datastore.**/
+/** Servlet that deletes comment from Datastore.**/
 @WebServlet("/delete-comment")
 public class DeleteCommentServlet extends HttpServlet {
 
