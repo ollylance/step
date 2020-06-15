@@ -140,7 +140,7 @@ header h1{
     margin-right: 2%;
 }
 
-iframe{
+#map{
     width: 50%;
     height: 300px;
     float: right;
@@ -167,6 +167,10 @@ textarea{
     min-width: 150px;
 }
 
+.g-recaptcha{
+    display: inline-block;
+}
+
 #comment-content{
     width: 100%;
     display: grid;
@@ -174,6 +178,15 @@ textarea{
 
 #stars{
     margin-bottom: 15px;
+}
+
+#submit-button{
+    cursor: pointer;
+}
+
+#submit-button:hover{
+    color: #b00;
+    cursor: pointer;
 }
 
 .comment-container{
@@ -244,6 +257,7 @@ button{
 
 
 #page-navigation{
+    margin-top: 10px;
     display: flex;
     text-align: center;
     justify-content: center;
