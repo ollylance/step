@@ -23,25 +23,27 @@ import java.util.Set;
 
 public final class FindMeetingQuery {
 
-    public static String attending(Set<String> eventAttendees, Collection<String> requestAttendees, 
+    private enum attendeeType {
+        MANDATORY, OPTIONAL, NONE
+    }
+
+    private static attendeeType attending(Set<String> eventAttendees, Collection<String> requestAttendees, 
             Collection<String> optionalRequestAttendees){
         for (String name : eventAttendees) {
             if (requestAttendees.contains(name)) {
-                return "mandatory";
+                return attendeeType.MANDATORY;
             } else if (optionalRequestAttendees.contains(name)) {
-                return "optional";
+                return attendeeType.OPTIONAL;
             }
         }
-        return "none";
+        return attendeeType.NONE;
     }
 
-    public static ArrayList<TimeRange> addOptionalTimes(ArrayList<TimeRange> availableMandatoryTime,
-        ArrayList<TimeRange> availableOptionalTime, int duration){
+    private static ArrayList<TimeRange> addOptionalTimes(ArrayList<TimeRange> availableMandatoryTime,
+        ArrayList<TimeRange> availableOptionalTime, long duration){
             ArrayList<TimeRange> newAvailableTime = new ArrayList<TimeRange>();
-            for (int i = 0; i < availableMandatoryTime.size(); i++) {
-                TimeRange mandatoryTime = availableMandatoryTime.get(i);
-                for (int j = 0; j < availableOptionalTime.size(); j++) {
-                    TimeRange optionalTime = availableOptionalTime.get(j);
+            for (TimeRange mandatoryTime: availableMandatoryTime) {
+                for (TimeRange optionalTime : availableOptionalTime) {
                     if(mandatoryTime.contains(optionalTime) && optionalTime.duration() >= duration){
                         newAvailableTime.add(optionalTime);
                     } else if(optionalTime.contains(mandatoryTime) && mandatoryTime.duration() >= duration){
@@ -49,15 +51,18 @@ public final class FindMeetingQuery {
                     }
                 }   
             }
-            if (newAvailableTime.size() > 0) return newAvailableTime;
-            else { return availableMandatoryTime; }
+            if (!newAvailableTime.isEmpty()) {
+                return newAvailableTime;
+            } else { 
+                return availableMandatoryTime; 
+            }
     }
 
-    public static ArrayList<TimeRange> getTimes(ArrayList<TimeRange> eventTimes, int duration){
+    private static ArrayList<TimeRange> getTimes(ArrayList<TimeRange> eventTimes, long duration){
         ArrayList<TimeRange> availableTimeRanges = new ArrayList<TimeRange>();
         TimeRange prevTimeRange = TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TimeRange.START_OF_DAY, false);
         TimeRange latestEvent = TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TimeRange.START_OF_DAY, true);
-        if(eventTimes.size() == 0){
+        if (eventTimes.isEmpty()) {
             availableTimeRanges.add(TimeRange.WHOLE_DAY);
             return availableTimeRanges;
         }
@@ -66,7 +71,7 @@ public final class FindMeetingQuery {
             TimeRange t = eventTimes.get(i);
             if (i == 0) {
                 boolean containsStart = (t.start() == 0);
-                if(!containsStart){
+                if (!containsStart) {
                     TimeRange temp = TimeRange.fromStartEnd(prevTimeRange.end(), t.start(), false);
                     if (temp.duration() >= duration) {
                         availableTimeRanges.add(temp);
@@ -98,7 +103,9 @@ public final class FindMeetingQuery {
         }
         if (!latestEvent.contains(TimeRange.END_OF_DAY)) {
             TimeRange endTime = TimeRange.fromStartEnd(prevTimeRange.end(), TimeRange.END_OF_DAY, true);
-            if(endTime.duration() >= duration) availableTimeRanges.add(endTime);
+            if(endTime.duration() >= duration) {
+                availableTimeRanges.add(endTime);
+            }
         }
         return availableTimeRanges;
     }
@@ -111,7 +118,7 @@ public final class FindMeetingQuery {
         if (request.getDuration() > TimeRange.WHOLE_DAY.duration() || request.getDuration() < 0) {
             //if the time requested is longer than 24 hours or 0 minutes or less
             return availableMandatoryRanges;
-        } else if (events.equals(Collections.emptySet()) || (request.getAttendees().size() == 0 && request.getOptionalAttendees().size() == 0) 
+        } else if (events.isEmpty() || (request.getAttendees().isEmpty() && request.getOptionalAttendees().isEmpty()) 
                 || request.getDuration() == 0) {
             //if there are no attendees or no events that day
             availableMandatoryRanges.add(TimeRange.WHOLE_DAY);
@@ -122,41 +129,41 @@ public final class FindMeetingQuery {
         Collection<String> mandatoryAttendees = request.getAttendees();
         Collection<String> optionalAttendees = request.getOptionalAttendees();
         for (Event e : events) {
-            String type = attending(e.getAttendees(), mandatoryAttendees, 
+            attendeeType type = attending(e.getAttendees(), mandatoryAttendees, 
                 optionalAttendees);
             switch (type) {
-                case "mandatory":
+                case MANDATORY:
                     mandatoryEventTimes.add(e.getWhen());
                     break;
-                case "optional":
+                case OPTIONAL:
                     optionalEventTimes.add(e.getWhen());
                     break;
-                case "none":
+                case NONE:
                     break;
                 default:
                     break;
             }
         }
 
-        int mandatorySize = mandatoryEventTimes.size();
-        int optionalSize = optionalEventTimes.size();
-        if(mandatorySize == 0 && optionalSize == 0) {
+        boolean mandatoryEmpty = mandatoryEventTimes.isEmpty();
+        boolean optionalEmpty = optionalEventTimes.isEmpty();
+        if (mandatoryEmpty && optionalEmpty) {
             availableMandatoryRanges.add(TimeRange.WHOLE_DAY);
             return availableMandatoryRanges;
-        } else if (mandatorySize != 0 && optionalSize == 0) {
+        } else if (!mandatoryEmpty && optionalEmpty) {
             Collections.sort(mandatoryEventTimes, TimeRange.ORDER_BY_START);
-            availableMandatoryRanges = getTimes(mandatoryEventTimes, (int) request.getDuration());
+            availableMandatoryRanges = getTimes(mandatoryEventTimes, request.getDuration());
             return availableMandatoryRanges;
-        } else if (mandatorySize == 0 && optionalSize != 0) {
+        } else if (mandatoryEmpty && !optionalEmpty) {
             Collections.sort(optionalEventTimes, TimeRange.ORDER_BY_START);
-            availableOptionalRanges = getTimes(optionalEventTimes, (int) request.getDuration());
+            availableOptionalRanges = getTimes(optionalEventTimes, request.getDuration());
             return availableOptionalRanges; 
         } else {
             Collections.sort(mandatoryEventTimes, TimeRange.ORDER_BY_START);
-            availableMandatoryRanges = getTimes(mandatoryEventTimes, (int) request.getDuration());
+            availableMandatoryRanges = getTimes(mandatoryEventTimes, request.getDuration());
             Collections.sort(optionalEventTimes, TimeRange.ORDER_BY_START);
-            availableOptionalRanges = getTimes(optionalEventTimes, (int) request.getDuration());
-            return addOptionalTimes(availableMandatoryRanges, availableOptionalRanges, (int) request.getDuration());
+            availableOptionalRanges = getTimes(optionalEventTimes, request.getDuration());
+            return addOptionalTimes(availableMandatoryRanges, availableOptionalRanges, request.getDuration());
         }
         
     }
