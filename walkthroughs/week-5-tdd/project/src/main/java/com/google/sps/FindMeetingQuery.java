@@ -23,22 +23,6 @@ import java.util.Set;
 
 public final class FindMeetingQuery {
 
-    private enum attendeeType {
-        MANDATORY, OPTIONAL, NONE
-    }
-
-    private static attendeeType attending(Set<String> eventAttendees, Collection<String> requestAttendees, 
-            Collection<String> optionalRequestAttendees){
-        for (String name : eventAttendees) {
-            if (requestAttendees.contains(name)) {
-                return attendeeType.MANDATORY;
-            } else if (optionalRequestAttendees.contains(name)) {
-                return attendeeType.OPTIONAL;
-            }
-        }
-        return attendeeType.NONE;
-    }
-
     private static ArrayList<TimeRange> addOptionalTimes(ArrayList<TimeRange> availableMandatoryTime,
         ArrayList<TimeRange> availableOptionalTime, long duration){
             ArrayList<TimeRange> newAvailableTime = new ArrayList<TimeRange>();
@@ -128,20 +112,20 @@ public final class FindMeetingQuery {
         ArrayList<TimeRange> optionalEventTimes = new ArrayList<TimeRange>();
         Collection<String> mandatoryAttendees = request.getAttendees();
         Collection<String> optionalAttendees = request.getOptionalAttendees();
+        boolean eventAddedToMandatory;
+        boolean eventAddedToOptional;
         for (Event e : events) {
-            attendeeType type = attending(e.getAttendees(), mandatoryAttendees, 
-                optionalAttendees);
-            switch (type) {
-                case MANDATORY:
+            //only adds the event once to each list if multiple mandatory or optional attendees are listed for the same event
+            eventAddedToMandatory = false;
+            eventAddedToOptional = false;
+            for (String name : e.getAttendees()) {
+                if (mandatoryAttendees.contains(name) && !eventAddedToMandatory) {
                     mandatoryEventTimes.add(e.getWhen());
-                    break;
-                case OPTIONAL:
+                    eventAddedToMandatory = true;
+                } else if (optionalAttendees.contains(name) && !eventAddedToOptional) {
                     optionalEventTimes.add(e.getWhen());
-                    break;
-                case NONE:
-                    break;
-                default:
-                    break;
+                    eventAddedToOptional = true;
+                }
             }
         }
 
@@ -164,7 +148,6 @@ public final class FindMeetingQuery {
             Collections.sort(optionalEventTimes, TimeRange.ORDER_BY_START);
             availableOptionalRanges = getTimes(optionalEventTimes, request.getDuration());
             return addOptionalTimes(availableMandatoryRanges, availableOptionalRanges, request.getDuration());
-        }
-        
+        } 
     }
 }
