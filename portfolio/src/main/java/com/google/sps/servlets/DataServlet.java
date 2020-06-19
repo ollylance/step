@@ -61,7 +61,7 @@ public class DataServlet extends HttpServlet {
         Query query = getQueryType(sort);
         PreparedQuery res = datastore.prepare(query);
         results = res.asQueryResultList(fetchOptions);
-        if (results.size() == 0) {
+        if (results.isEmpty()) {
             return true;
         }
         return false;
@@ -100,22 +100,22 @@ public class DataServlet extends HttpServlet {
         //checks if profile is verified and then initializes the current profile id;
         String stringToken = request.getParameter("stringToken");
         IdentityProvider identity = new IdentityProvider(stringToken);
-        if(success){
-            if(identity.getTokenVerified()){
-                Entity commentEntity = new Entity("Comment");
-                commentEntity.setProperty("personId", identity.getPayload().getSubject());
-                commentEntity.setProperty("name", name);
-                commentEntity.setProperty("comment", comment);
-                commentEntity.setProperty("stars", stars);
-                commentEntity.setProperty("timestamp", timestamp);
+        if (!success) {
+            return;
+        }
+        if (identity.getTokenVerified()) {
+            Entity commentEntity = new Entity("Comment");
+            commentEntity.setProperty("personId", identity.getPayload().getSubject());
+            commentEntity.setProperty("name", name);
+            commentEntity.setProperty("comment", comment);
+            commentEntity.setProperty("stars", stars);
+            commentEntity.setProperty("timestamp", timestamp);
 
-                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                datastore.put(commentEntity);
-                response.sendRedirect("/comments.html");
-                return;
-            } else{
-                getServletContext().log("Token not verified");
-            }
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(commentEntity);
+            response.sendRedirect("/comments.html");
+        } else {
+            getServletContext().log("Token not verified");
         }
     }
 
@@ -138,10 +138,11 @@ public class DataServlet extends HttpServlet {
 
         if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
-        } 
+        }
         if (reload) {
             pageNumber = 1;
         }
+
         pageNumber = addPageNumber(dir, pageNumber);
 
         Query query = getQueryType(sort);

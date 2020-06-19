@@ -55,7 +55,9 @@ public class DeleteCommentServlet extends HttpServlet {
         }
         for (Entity entity : results) {
             String id = Long.toString(entity.getKey().getId());
-            if (id.equals(entryKey)) return entity;
+            if (id.equals(entryKey)) {
+                return entity;
+            }
         }
         return null;
     }
@@ -67,18 +69,20 @@ public class DeleteCommentServlet extends HttpServlet {
         String stringToken = request.getParameter("stringToken");
         IdentityProvider identity = new IdentityProvider(stringToken);
         Entity comment = getEntry("id", commentId);
-        if(comment == null){
+        if (comment == null) {
             return;
         }
         String personId = (String) comment.getProperty("personId");
-        if(personId == null || personId.equals("")){
+        if (personId == null || personId.isEmpty()) {
             response.sendRedirect("/comments.html");
             return;
         }
         if (identity.getTokenVerified() && personId.equals(identity.getPayload().getSubject())) {
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             Key key = comment.getKey();
-            if (key != null) datastore.delete(comment.getKey());
+            if (key != null) {
+                datastore.delete(comment.getKey());
+            }
         }
         response.sendRedirect("/comments.html");
     }
