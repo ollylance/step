@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css"/>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="script.js"></script>
   </head>
   <body onload="getComments('', '0', 'true', '1')">
@@ -34,7 +35,7 @@
             <a href="comments.html" class="selected">Comments</a>
         </nav>
         <hr/>
-        <form id="add-comment" onsubmit="addComment()">
+        <form id="add-comment" onsubmit="addComment(); return false">
             <p>Enter a comment:</p>
             <textarea id="name" name="name" rows="1" cols="50" max-length="60" 
                 placeholder="Name" required></textarea><br/>
@@ -42,9 +43,10 @@
                 cols="50" placeholder="Comment" max-length="1000" required></textarea><br/>
             <label for="stars" required>Stars (out of 5):</label>
             <input type="number" id="stars" name="stars" min="1" max="5" required/>
-            <br>
-            <input type="submit" />
-           
+            <br/>
+            <div class="g-recaptcha" data-sitekey="6Le34qMZAAAAAKr79dwkzvW5YrAH4Mwpq1rwnGs3"></div>
+            <br/>
+            <input type="submit"/>
         </form>
         <hr/>
         <form onchange="getComments('', '0', 'true', '1')" id="sort-results">
@@ -72,7 +74,6 @@
             <a class="next-page" class="page-link" href="/">Next Page</a>
         </div>
        <hr/>
-        
         <footer>
             <p>Oliver Lance <br/> 717-553-3107 &middot <a href="mailto:ollylance@google.com" target="_blank">ollylance@google.com</a>
             <br/> <a href="https://www.linkedin.com/in/oliverplance/" target="_blank">LinkedIn</a> &middot 

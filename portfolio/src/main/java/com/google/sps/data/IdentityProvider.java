@@ -41,22 +41,25 @@ public final class IdentityProvider {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, gson)
             .setAudience(Collections.singletonList("653342157222-tprfu5283rhi6m8gasi33pteu3su0cle.apps.googleusercontent.com"))
             .build();
-        if (this.stringToken != null && !this.stringToken.equals("")) {
-            try {
-                this.idToken = GoogleIdToken.parse(gson, this.stringToken);
-                if (verifier.verify(this.idToken)) {
-                    this.tokenVerified = true;
-                }
-            } catch (Exception e) {
-                this.tokenVerified = false;
+        if (this.stringToken == null || this.stringToken.isEmpty()) {
+            this.tokenVerified = false;
+            return;
+        }
+        try {
+            this.idToken = GoogleIdToken.parse(gson, this.stringToken);
+            if (verifier.verify(this.idToken)) {
+                this.tokenVerified = true;
             }
-        } else {
+        } catch (Exception e) {
             this.tokenVerified = false;
         }
+
     }
 
     private void setPayload(){
-        if (this.tokenVerified == true) this.payload = this.idToken.getPayload();
+        if (this.tokenVerified == true) {
+            this.payload = this.idToken.getPayload();
+        }
     }
 
     public boolean getTokenVerified(){

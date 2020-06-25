@@ -53,7 +53,9 @@ public class ProfileServlet extends HttpServlet {
             return null;
         }
         for (Entity entity : results) {
-            if (entity.getProperty("id").equals(profileId)) return entity;
+            if (entity.getProperty("id").equals(profileId)) {
+                return entity;
+            }
         }
         return null;
     }
@@ -65,21 +67,22 @@ public class ProfileServlet extends HttpServlet {
        
         //if the specific id is not already in the database
         Payload payload = identity.getPayload();
-        if(identity.getTokenVerified()){
-            if (getProfile(payload.getSubject()) == null) {
-                Entity profileEntity = new Entity("Profile");
-                profileEntity.setProperty("id", payload.getSubject());
-                profileEntity.setProperty("fname", (String) payload.get("given_name"));
-                profileEntity.setProperty("lname", (String) payload.get("family_name"));
-                profileEntity.setProperty("email", (String) payload.getEmail());
-                profileEntity.setProperty("emailVerfied", Boolean.valueOf(payload.getEmailVerified()));
-                profileEntity.setProperty("picUrl", (String) payload.get("picture"));
-
-                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                datastore.put(profileEntity);
-            }
-        } else{
+        if(!identity.getTokenVerified()) {
             getServletContext().log("Token not verified");
+            response.sendRedirect("/comments.html");
+            return;
+        }
+        if (getProfile(payload.getSubject()) == null) {
+            Entity profileEntity = new Entity("Profile");
+            profileEntity.setProperty("id", payload.getSubject());
+            profileEntity.setProperty("fname", (String) payload.get("given_name"));
+            profileEntity.setProperty("lname", (String) payload.get("family_name"));
+            profileEntity.setProperty("email", (String) payload.getEmail());
+            profileEntity.setProperty("emailVerfied", Boolean.valueOf(payload.getEmailVerified()));
+            profileEntity.setProperty("picUrl", (String) payload.get("picture"));
+
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(profileEntity);
         }
         response.sendRedirect("/comments.html");
     }
@@ -89,26 +92,28 @@ public class ProfileServlet extends HttpServlet {
         String stringToken = request.getParameter("stringToken");
         IdentityProvider identity = new IdentityProvider(stringToken);
         
-        if(identity.getTokenVerified()){
-            //if the specific id is not already in the database
-            Entity profile = getProfile(identity.getPayload().getSubject());
-            if (profile != null) {
-                ArrayList<String> profileData = new ArrayList<String>();
-                String picUrl = (String) profile.getProperty("picUrl");
-                profileData.add(picUrl);
-                String fname = (String) profile.getProperty("fname");
-                profileData.add(fname);
-                String lname = (String) profile.getProperty("lname");
-                profileData.add(lname);
-
-                DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-                Gson gsonHelper = new Gson();
-                response.setContentType("application/json;");
-                response.getWriter().println(gsonHelper.toJson(profileData));
-                return;
-            } else response.sendRedirect("/comments.html");
-        } else{
+        if(!identity.getTokenVerified()){
             getServletContext().log("Token not verified");
+            response.sendRedirect("/comments.html");
+            return;
+        }
+        //if the specific id is not already in the database
+        Entity profile = getProfile(identity.getPayload().getSubject());
+        if (profile != null) {
+            ArrayList<String> profileData = new ArrayList<String>();
+            String picUrl = (String) profile.getProperty("picUrl");
+            profileData.add(picUrl);
+            String fname = (String) profile.getProperty("fname");
+            profileData.add(fname);
+            String lname = (String) profile.getProperty("lname");
+            profileData.add(lname);
+
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            Gson gsonHelper = new Gson();
+            response.setContentType("application/json;");
+            response.getWriter().println(gsonHelper.toJson(profileData));
+            return;
+        } else {
             response.sendRedirect("/comments.html");
         }
     }

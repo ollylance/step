@@ -25,12 +25,15 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Key;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import com.google.sps.data.Comment;
+import com.google.sps.data.VerifyRecaptcha;
 import com.google.sps.data.IdentityProvider;
 import com.google.sps.data.PageInfo;
 import com.google.gson.Gson;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +61,7 @@ public class DataServlet extends HttpServlet {
         Query query = getQueryType(sort);
         PreparedQuery res = datastore.prepare(query);
         results = res.asQueryResultList(fetchOptions);
-        if (results.size() == 0) {
+        if (results.isEmpty()) {
             return true;
         }
         return false;
@@ -87,17 +90,20 @@ public class DataServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         String name = request.getParameter("name");
         String comment = request.getParameter("comment-input");
         String stars = request.getParameter("stars");
         long timestamp = System.currentTimeMillis();
-
+        String gRecaptchaResponse = request.getParameter("g-recaptcha-response");
+        //checks if reCAPTCHA is successful
+        boolean success = VerifyRecaptcha.verify(gRecaptchaResponse);
         //checks if profile is verified and then initializes the current profile id;
         String stringToken = request.getParameter("stringToken");
         IdentityProvider identity = new IdentityProvider(stringToken);
-        
-        if(identity.getTokenVerified()){
+        if (!success) {
+            return;
+        }
+        if (identity.getTokenVerified()) {
             Entity commentEntity = new Entity("Comment");
             commentEntity.setProperty("personId", identity.getPayload().getSubject());
             commentEntity.setProperty("name", name);
@@ -108,7 +114,7 @@ public class DataServlet extends HttpServlet {
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             datastore.put(commentEntity);
             response.sendRedirect("/comments.html");
-        } else{
+        } else {
             getServletContext().log("Token not verified");
         }
     }
@@ -132,10 +138,11 @@ public class DataServlet extends HttpServlet {
 
         if (startCursor != null) {
             fetchOptions.startCursor(Cursor.fromWebSafeString(startCursor));
-        } 
+        }
         if (reload) {
             pageNumber = 1;
         }
+
         pageNumber = addPageNumber(dir, pageNumber);
 
         Query query = getQueryType(sort);

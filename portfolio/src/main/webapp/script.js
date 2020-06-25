@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//<---------ReCAPTCHA----------->
+
+var onloadCallback = function() {
+    grecaptcha.render('recaptcha', {
+      'sitekey' : '6Le34qMZAAAAAKr79dwkzvW5YrAH4Mwpq1rwnGs3'
+    });
+};
+
 
 function resizeOverlay() {
     const background = document.getElementById("background-clicked");
@@ -199,7 +207,12 @@ async function addComment() {
         params.append(pair[0], pair[1]);
     }
     const res = await fetch('/data?'+params.toString(), {method:'POST'});
+    if (res.redirected) { location.reload() }
+    else {
+        alert("Please fill out reCAPTCHA.")
+    }
 }
+
 
 async function deleteComment(commentId) {
     var auth2 = gapi.auth2.getAuthInstance();
@@ -209,7 +222,7 @@ async function deleteComment(commentId) {
         return;
     }
     const res = await fetch('/delete-comment?stringToken='+stringToken+'&commentId='+commentId, {method:'POST'});
-    await getComments("", 0, true, "1");
+    getComments("", 0, true, "1");
 }
 
 function loadProfileHTML(profileData){
